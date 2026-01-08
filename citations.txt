@@ -1,0 +1,6 @@
+I have worked with: Miguel
+
+Citation 1: I used ChatGPT to produce my turtlelib CMakeLists.txt. The conversation includes discussion of doxygen, but doxygen was taken from the course website.
+
+Citation 2: ChatGPT told me how to properly register std::numbers with VSCode IntelliSense (e.g. set intellisense to use c++23). The modified file is in the .vscode, and is therefore excluded from the repo.
+

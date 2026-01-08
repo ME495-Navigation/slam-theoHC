@@ -2,7 +2,8 @@
 #define TURTLELIB_ANGLE_HPP_INCLUDE_GUARD
 
 /// \brief Functions for handling angles
-/// NOTE: Include any needed header files here
+#include <cmath>
+#include <numbers>
 
 namespace turtlelib
 {
@@ -14,11 +15,7 @@ namespace turtlelib
     /// \return true if abs(d1 - d2) < epsilon
     constexpr bool almost_equal(double d1, double d2, double epsilon=1.0e-12)
     {
-        // HINT: This function must be implemented in the header file in order to be
-        // used by other modules, because it is constexpr.
-        // constexpr means that the function can be computed at compile time
-        // if given compile-time constants as input, and therefore
-        // it's definition must be visible in any compilation unit that uses it.
+        return std::abs(d1 - d2) < epsilon;
     }
 
     /// \brief Convert degrees to radians
@@ -26,11 +23,7 @@ namespace turtlelib
     /// \returns The equivalent angle in radians
     constexpr double deg2rad(double deg)
     {
-        // HINT: C++20 #include<numbers> defines standard values
-        // for many mathematical constants. Prior to C++20 you
-        // would need to define your own constant for pi.
-        // You should use the standardized value now
-        using std::numbers::pi;
+        return (deg / 180) * std::numbers::pi;
     }
 
     /// \brief Convert radians to degrees
@@ -38,6 +31,7 @@ namespace turtlelib
     /// \returns The equivalent angle in degrees
     constexpr double rad2deg(double rad)
     {
+        return (rad / std::numbers::pi) * 180;
     }
 
     /// \brief Wrap an angle to (-PI, PI]
@@ -45,22 +39,26 @@ namespace turtlelib
     /// \return An equivalent angle the range (-PI, PI]
     constexpr double normalize_angle(double rad)
     {
-        // NOTE: You will receive partial credit only if this function uses loops.
+        return std::fmod(rad, 2.0 * std::numbers::pi) - std::numbers::pi;
     }
 
     /// static_assertions test compile time assumptions.
     /// These tests can provide assurance that your code is correct at compile time!
     static_assert(almost_equal(0, 0), "is_zero failed");
-    /// TASK: Write (at least) the following tests:
-    /// 1. Compare two numbers where almost_equal is true or false depending on the epsilon argument
-    ///    almost_equal(x, y, e1) == true
-    ///    almost_equal(x, y, e2) == false
-    /// 2. Compare negative and positive numbers that should not be equal
-    /// 3. Compare negative and positive numbers that should be equal
+    static_assert(almost_equal(0, 0.1, .2), "epsilon setting failed");
+    static_assert(!almost_equal(0, 0.1), "nowhere near equal");
+    static_assert(!almost_equal(-1.0, 1.0), "not even the same number");
+    static_assert(almost_equal(0.0, -0.0), "zeros are the same");
+
+
 
     static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
-    /// TASK: Write at least 4 additional tests for deg2rad. Include at least one negative angle
-    /// HINT: It helps to use angles where there is a simple known formula (e.g., 30 degrees)
+    static_assert(almost_equal(deg2rad(180.0), std::numbers::pi), "deg2rad failed");
+    static_assert(almost_equal(deg2rad(-180.0), -1 * std::numbers::pi), "deg2rad failed");
+    static_assert(almost_equal(deg2rad(90), 0.5 * std::numbers::pi), "deg2rad failed");
+    static_assert(almost_equal(deg2rad(270), 1.5 * std::numbers::pi), "deg2rad failed");
+
+
 
     static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
     /// TASK: Write at least 4 additional tests for rad2deg. Include at least one negative angle
