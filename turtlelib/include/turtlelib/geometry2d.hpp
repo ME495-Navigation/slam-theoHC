@@ -102,19 +102,19 @@ namespace turtlelib
 /// \brief A Formatter for 2D points
 /// The output is "(x, y)"
 /// All floating-point format specifiers are honored and applied to both x and y.
-template<class CharT>
-class std::formatter<turtlelib::Point2D, CharT>
-{
+// template<class CharT>
+// class std::formatter<turtlelib::Point2D, CharT>
+// {
 
 
 
-};
+// };
 
-/// \brief A formatter for Vector2D
-/// All double format-spec specifiers apply to each number in the vector
-/// The vector is output as [x, y]
-template<class CharT>
-class std::formatter<turtlelib::Point2D, CharT>
-{
-};
+// /// \brief A formatter for Vector2D
+// /// All double format-spec specifiers apply to each number in the vector
+// /// The vector is output as [x, y]
+// template<class CharT>
+// class std::formatter<turtlelib::Point2D, CharT>
+// {
+// };
 #endif
