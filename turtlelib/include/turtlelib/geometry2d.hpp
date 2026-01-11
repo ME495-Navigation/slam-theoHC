@@ -4,8 +4,6 @@
 /// \brief Two-dimensional geometric primitives and other mathematical objects
 
 
-// NOTE: Put additional include files here
-
 // Note: <iosfwd> contains forward definitions for iostream objects
 // allowing implementation of custom iostream operators without
 // requiring the inclusion of <iostream>, which is a big header file
@@ -28,24 +26,12 @@ namespace turtlelib
     /// \param is An istream from which to read
     /// \param p [out] The Point2D object that will store the input
     /// \returns A reference to is. An error flag is set on the stream if the input cannot be parsed.
-    ///
-    /// Hint: The following methods may be useful:
-    /// https://en.cppreference.com/w/cpp/io/basic_istream/peek
-    ///  .peek() looks at the next unprocessed character in the buffer without removing it
-    /// https://en.cppreference.com/w/cpp/io/basic_istream/get
-    ///  .get() removes the next unprocessed character from the buffer.
-    ///
-    /// You can also re-use operator>> from other types.
-    ///
     /// The way input with istreams works is (more or less):
     /// What the user types is stored in a buffer until the user enters a newline (by pressing enter).
     /// The iostream methods then process the data in this buffer character-by-character.
     /// Typically, each character is examined and then removed from the buffer automatically.
     /// If the characters don't match what is expected (e.g., we expected an int but 'q' is encountered)
     /// an error flag is set on the stream object (e.g., std::cin).
-    ///
-    /// If you find yourself writing more than 30 or so lines for this function, you are likely
-    /// on the wrong track.
     std::istream & operator>>(std::istream & is, Point2D & p);
 
     /// \brief A 2-Dimensional Vector
@@ -79,8 +65,6 @@ namespace turtlelib
     /// \param v - the vector to print
     /// Note: Here to demonstrate the old method of custom output
     /// std::format is very recent so std::ostream is commonly used.
-    /// DO NOT implement in terms of std::format, this is for you
-    /// to have exposure to code that does not have std::format available.
     std::ostream & operator<<(std::ostream & os, const Vector2D & v);
 
     /// \brief input a 2 dimensional vector
@@ -105,14 +89,11 @@ namespace turtlelib
 // template<class CharT>
 // class std::formatter<turtlelib::Point2D, CharT>
 // {
-
-
-
 // };
 
-// /// \brief A formatter for Vector2D
-// /// All double format-spec specifiers apply to each number in the vector
-// /// The vector is output as [x, y]
+/// \brief A formatter for Vector2D
+/// All double format-spec specifiers apply to each number in the vector
+/// The vector is output as [x, y]
 // template<class CharT>
 // class std::formatter<turtlelib::Point2D, CharT>
 // {

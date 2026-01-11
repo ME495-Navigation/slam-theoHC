@@ -5,3 +5,5 @@ Citation 1: I used ChatGPT to produce my turtlelib CMakeLists.txt. The conversat
 Citation 2: ChatGPT told me how to properly register std::numbers with VSCode IntelliSense (e.g. set intellisense to use c++23). The modified file is in the .vscode, and is therefore excluded from the repo.
 
 Citation 3: Input stream error handling from https://hackingcpp.com/cpp/recipe/istream_recover_from_errors.html
+
+Citation 4: How to set the fail bit on an istream from https://stackoverflow.com/questions/41355007/is-it-possible-to-manually-set-istream-fail-bit-in-c11

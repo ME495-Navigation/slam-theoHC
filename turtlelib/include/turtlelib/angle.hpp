@@ -50,27 +50,22 @@ namespace turtlelib
     static_assert(!almost_equal(-1.0, 1.0), "not even the same number");
     static_assert(almost_equal(0.0, -0.0), "zeros are the same");
 
-
-
     static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
     static_assert(almost_equal(deg2rad(180.0), std::numbers::pi), "deg2rad failed");
     static_assert(almost_equal(deg2rad(-180.0), -1 * std::numbers::pi), "deg2rad failed");
     static_assert(almost_equal(deg2rad(90), 0.5 * std::numbers::pi), "deg2rad failed");
     static_assert(almost_equal(deg2rad(270), 1.5 * std::numbers::pi), "deg2rad failed");
 
-
-
     static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
     /// TASK: Write at least 4 additional tests for rad2deg. Include at least one negative angle
     /// HINT: It helps to use angles where there is a simple known formula (e.g., 30 degrees)
 
-
-    // static_assert(almost_equal(normalize_angle(0.0), 0.0), "norm_angle failed");
-    // static_assert(almost_equal(normalize_angle(std::numbers::pi), std::numbers::pi), "norm_angle failed");
-    // static_assert(almost_equal(normalize_angle(-std::numbers::pi), std::numbers::pi), "norm_angle failed");
-    /// Task: Write at least 8 additional tests for normalize_angle. This function is absolutely critical, so you want to get it right!
-    /// Include at least once case  where the angle > 5.0*pi and one where the angle < -5.0*pi
-    /// Also include: pi, -pi, -pi/4.0, 3*pi/2, and -5*pi/2.
+    static_assert(almost_equal(normalize_angle(0.0), 0.0), "norm_angle failed");
+    static_assert(almost_equal(normalize_angle(std::numbers::pi), std::numbers::pi), "norm_angle failed");
+    static_assert(almost_equal(normalize_angle(-std::numbers::pi), std::numbers::pi), "norm_angle failed");
+    // / Task: Write at least 8 additional tests for normalize_angle. This function is absolutely critical, so you want to get it right!
+    // / Include at least once case  where the angle > 5.0*pi and one where the angle < -5.0*pi
+    // / Also include: pi, -pi, -pi/4.0, 3*pi/2, and -5*pi/2.
 
 
 }

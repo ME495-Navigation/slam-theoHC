@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <string>
 
-// ####### begin_citation [1] #######
-
 void reset_cin () {    
 // clear all error status bits
 std::cin.clear(); 
@@ -49,5 +47,3 @@ int main(){
     }
     return 0;
 }
-
-// ####### end_citation [1] #######

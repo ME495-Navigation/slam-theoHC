@@ -5,7 +5,6 @@ project(turtlelib LANGUAGES CXX)
 
 add_library(turtlelib
   src/geometry2d.cpp
-  src/converter.cpp
 )
 
 add_executable(converter src/converter.cpp)
