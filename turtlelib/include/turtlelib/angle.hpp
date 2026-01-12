@@ -39,7 +39,16 @@ namespace turtlelib
     /// \return An equivalent angle the range (-PI, PI]
     constexpr double normalize_angle(double rad)
     {
-        return std::fmod(rad + std::numbers::pi, 2.0 * std::numbers::pi) - std::numbers::pi;
+        // ####### begin_citation [5] #######
+        const double pi = std::numbers::pi;
+        const double two_pi = 2.0 * pi;
+
+        double r = std::fmod(rad, two_pi);
+
+        if (r <= -pi) r += two_pi;
+        if (r >  pi)  r -= two_pi;
+        return r;
+        // ####### end_citation [5] #######
     }
 
     /// static_assertions test compile time assumptions.
