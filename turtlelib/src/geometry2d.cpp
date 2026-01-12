@@ -1,4 +1,4 @@
-#include "turtlelib/geometry2d.hpp"
+#include <turtlelib/geometry2d.hpp>
 #include <istream>
 #include <cmath>
 
@@ -8,7 +8,7 @@ namespace turtlelib{
         bool hasParens = false;
         if(is.peek() == openDelim){
             is.get();
-            hasParens == true;
+            hasParens = true;
         }
 
         is >> p.x;
