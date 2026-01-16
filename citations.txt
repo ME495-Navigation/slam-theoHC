@@ -8,4 +8,6 @@ Citation 3: Input stream error handling from https://hackingcpp.com/cpp/recipe/i
 
 Citation 4: How to set the fail bit on an istream from https://stackoverflow.com/questions/41355007/is-it-possible-to-manually-set-istream-fail-bit-in-c11
 
-Citation 5: The difference between modulo and wrapping via ChatGPT. 
+Citation 5: The difference between modulo and wrapping via ChatGPT.
+
+Citation 6: Formatter pulled from https://code-examples.net/en/q/4c270a8/beyond-printf-a-friendly-deep-dive-into-c-20-std-formatter-specialization

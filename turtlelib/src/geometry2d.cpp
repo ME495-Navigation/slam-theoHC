@@ -67,11 +67,11 @@ namespace turtlelib{
     }
 
     std::ostream & operator<<(std::ostream & os, const Vector2D & v){
-        return os << '[' << v.x << ',' << v.y << ']';
+        return os << '[' << v.x << ", " << v.y << ']';
     }
 
     Vector2D normalize(Vector2D in){
-        float len = std::pow(in.x, 2) + std::pow(in.y, 2);
+        float len = std::pow(std::pow(in.x, 2) + std::pow(in.y, 2), 0.5);
         
         in.x *= 1/len;
         in.y *= 1/len;

@@ -3,12 +3,14 @@
 #include <cstdio>
 #include <string>
 
+// ####### begin_citation [3] #######
 void reset_cin () {    
-// clear all error status bits
-std::cin.clear(); 
-// clear input buffer
-std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    // clear all error status bits
+    std::cin.clear(); 
+    // clear input buffer
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
+// ####### end_citation [3] #######
 
 int main(){
     while(true){
