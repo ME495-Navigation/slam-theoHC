@@ -74,3 +74,19 @@ TEST_CASE("Normalization of vectors", "[normalize()]"){
     REQUIRE(testVec1.x == 1.0);
     REQUIRE(testVec1.y == 0.0);
 }
+
+TEST_CASE("Formatting to a string", "[Formatter]"){
+    turtlelib::Vector2D testVec1(2, 0);
+
+    std::string outstr = std::format("Vector: {}", testVec1);
+
+    REQUIRE(outstr == "Vector: [2, 0]");
+}
+
+TEST_CASE("Formatting to a string", "[Formatter]"){
+    turtlelib::Vector2D testVec1(2, 0);
+
+    std::string outstr = std::format("Vector: {}", testVec1);
+
+    REQUIRE(outstr == "Point: [2, 0]");
+}
