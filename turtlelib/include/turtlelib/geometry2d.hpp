@@ -54,13 +54,30 @@ namespace turtlelib
     /// because subtracting two Point2D yields a Vector2D not a Point2D
     Vector2D operator-(const Point2D & head, const Point2D & tail);
 
+    /// \brief Scalar multiplication of a vector
+    /// \param a Scalar multiple
+    /// \param vec Vector
+    /// \return The scaled vector
+    Vector2D operator*(const double & a, const Vector2D & vec);
+
+    /// \brief Vector addition
+    /// \param a First vector
+    /// \param b Second vector
+    /// \return The elementwise sum of a and b
+    Vector2D operator+(const Vector2D & a, const Vector2D & b);
+
+    /// \brief Vector inner product
+    /// \param a First vector
+    /// \param b Second vector
+    /// \return The dot product of a and b
+    double operator*(const Vector2D & a, const Vector2D & b);
+
     /// \brief Adding a vector to a point yields a new point displaced by the vector
     /// \param tail The origin of the vector's tail
     /// \param disp The displacement vector
     /// \return the point reached by displacing by disp from tail
     /// NOTE: this is not implemented in terms of += because of the different types
     Point2D operator+(const Point2D & tail, const Vector2D & disp);
-
 
     /// \brief output a 2 dimensional vector as [xcomponent, ycomponent]
     /// \param os - stream to output to

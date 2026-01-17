@@ -71,11 +71,23 @@ namespace turtlelib{
     }
 
     Vector2D normalize(Vector2D in){
-        float len = std::pow(std::pow(in.x, 2) + std::pow(in.y, 2), 0.5);
+        float len = std::pow(in * in, 0.5);
         
         in.x *= 1/len;
         in.y *= 1/len;
 
         return in;
+    }
+    
+    Vector2D operator*(const double & a, const Vector2D & vec){
+        return Vector2D(a * vec.x, a * vec.y);
+    }
+
+    Vector2D operator+(const Vector2D & a, const Vector2D & b){
+        return Vector2D(a.x + b.x, a.y + b.y);
+    }
+
+    double operator*(const Vector2D & a, const Vector2D & b){
+        return a.x * b.x + a.y + b.y;
     }
 }
