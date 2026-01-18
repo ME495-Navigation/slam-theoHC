@@ -61,6 +61,8 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
 
     is >> rot;
     tf.setrot(rot);
+    
+    REMOVE_SPACE
 
     std::string unitstr;
     if(is.peek() == 'd'){
@@ -120,7 +122,7 @@ Point2D Transform2D::operator()(Point2D p) const{
     Point2D out;
 
     out.x = p.x * cos(rot) - p.y * sin(rot) + offset.x;
-    out.y = p.x * sin(rot) + p.y * cos(rot) + offset.x;
+    out.y = p.x * sin(rot) + p.y * cos(rot) + offset.y;
 
     return out;
 }
@@ -138,8 +140,8 @@ Twist2D Transform2D::operator()(Twist2D v) const{
     double newx = v.x * cos(rot) - v.y * sin(rot);
     double newy = v.x * sin(rot) + v.y * cos(rot);
 
-    v.x = newx;
-    v.y = newy;
+    v.x = newx + v.omega * (offset.y);
+    v.y = newy + v.omega * (-offset.x);;
 
     return v;
 }
@@ -153,9 +155,9 @@ Transform2D Transform2D::inv() const{
 }
 
 Transform2D & Transform2D::operator*=(const Transform2D & rhs){
-    rot += rhs.rot;
-
     offset = offset + (*this)(rhs.offset);
+
+    rot += rhs.rot;
 
     return *this;
 }

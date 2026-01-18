@@ -104,7 +104,20 @@ TEST_CASE("Transform with rotation and translation input", "[transform]") // Gre
     REQUIRE(tf.translation().y == Catch::Approx(-1.0));
 }
 
-TEST_CASE("Apply a transformation to a point", "[transform]") // Gregory, Aiosa
+TEST_CASE("Apply a pure offset transformation to a point", "[transform]") // Coulson, Theo
+{
+    turtlelib::Point2D p = {1.0, 2.0};
+    turtlelib::Transform2D tf;
+    turtlelib::Vector2D trans = {1.0, -1.0};
+    tf = turtlelib::Transform2D(trans);
+
+    p = tf(p);
+
+    REQUIRE(p.x == Catch::Approx(2));
+    REQUIRE(p.y == Catch::Approx(1));
+}
+
+TEST_CASE("Apply a offset + rotation transformation to a point", "[transform]") // Gregory, Aiosa
 {
     turtlelib::Point2D p = {1.0, 2.0};
     turtlelib::Transform2D tf;
@@ -155,6 +168,36 @@ TEST_CASE("Transform inversion", "[transform]") // Gregory, Aiosa
     REQUIRE(tf.rotation() == Catch::Approx(turtlelib::deg2rad(-30.0)));
     REQUIRE(tf.translation().x == Catch::Approx(-0.5980762114));
     REQUIRE(tf.translation().y == Catch::Approx(4.9641016151));
+}
+
+TEST_CASE("Composing pure offset transforms", "[transform]") // Coulson, Theo
+{
+    turtlelib::Transform2D tf1;
+    turtlelib::Vector2D trans1 = {3.0, -4.0};
+    tf1 = turtlelib::Transform2D(trans1);
+
+    turtlelib::Transform2D tf2;
+    turtlelib::Vector2D trans2 = {2.0, 2.0};
+    tf2 = turtlelib::Transform2D(trans2);
+
+    tf1 *= tf2;
+
+    REQUIRE(tf1.rotation() == Catch::Approx(0));
+    REQUIRE(tf1.translation().x == Catch::Approx(5));
+    REQUIRE(tf1.translation().y == Catch::Approx(-2));
+}
+
+TEST_CASE("Composing pure rotation transforms", "[transform]") // Coulson, Theo
+{
+    turtlelib::Transform2D tf1= turtlelib::Transform2D(1.0);
+
+    turtlelib::Transform2D tf2 = turtlelib::Transform2D(1.0);
+
+    tf1 *= tf2;
+
+    REQUIRE(tf1.rotation() == Catch::Approx(2.0));
+    REQUIRE(tf1.translation().x == Catch::Approx(0));
+    REQUIRE(tf1.translation().y == Catch::Approx(0));
 }
 
 TEST_CASE("Transform multiplication", "[transform]") // Gregory, Aiosa
