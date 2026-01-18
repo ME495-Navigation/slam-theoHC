@@ -11,3 +11,9 @@ Citation 4: How to set the fail bit on an istream from https://stackoverflow.com
 Citation 5: The difference between modulo and wrapping via ChatGPT.
 
 Citation 6: Formatter pulled from https://code-examples.net/en/q/4c270a8/beyond-printf-a-friendly-deep-dive-into-c-20-std-formatter-specialization
+
+Citation 7: Several minor c++ issues were fixed by ChatGPT. Output was used as reference rather than copy-paste.
+
+Citation 8: Formatters fixed by ChatGPT.
+
+Citation 9: An error of definitions, fixed by chatgpt (inline keyword was needed)

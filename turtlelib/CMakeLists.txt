@@ -5,6 +5,7 @@ project(turtlelib LANGUAGES CXX)
 
 add_library(turtlelib
   src/geometry2d.cpp
+  src/se2d.cpp
 )
 
 add_executable(converter src/converter.cpp)
@@ -36,7 +37,7 @@ install(EXPORT ${PROJECT_NAME}-targets
 find_package(Doxygen)
 find_package(Catch2 3 REQUIRED)
 
-add_executable(tests tests/test_geometry2.cpp)
+add_executable(tests tests/test_geometry2.cpp tests/test_se2d.cpp)
 target_link_libraries(tests PRIVATE turtlelib Catch2::Catch2WithMain)
 
 # Building documentation should be optional.

@@ -108,10 +108,20 @@ namespace turtlelib
 template<class CharT>
 class std::formatter<turtlelib::Point2D, CharT> : public std::formatter<double, CharT>
 {
+    using super = formatter<double, CharT>;
+
     public:
 
-    auto format(const turtlelib::Point2D& obj, std::format_context& ctx) const override {
-        return std::format_to(ctx.out(), "({}, {})", obj.x, obj.y);
+    auto format(const turtlelib::Point2D& obj, std::format_context& ctx) const {
+        auto out = ctx.out();
+
+        out = std::format_to(out, "(");
+        out = super::format(obj.x, ctx);
+        out = std::format_to(out, ", ");
+        out = super::format(obj.y, ctx);
+        out = std::format_to(out, ")");
+
+        return out;
     }
 };
 
@@ -121,10 +131,20 @@ class std::formatter<turtlelib::Point2D, CharT> : public std::formatter<double, 
 template<class CharT>
 class std::formatter<turtlelib::Vector2D, CharT> : public std::formatter<double, CharT>
 {
+    using super = formatter<double, CharT>;
+
     public:
 
     auto format(const turtlelib::Vector2D& obj, std::format_context& ctx) const {
-        return std::format_to(ctx.out(), "[{}, {}]", obj.x, obj.y);
+        auto out = ctx.out();
+
+        out = std::format_to(out, "[");
+        out = super::format(obj.x, ctx);
+        out = std::format_to(out, ", ");
+        out = super::format(obj.y, ctx);
+        out = std::format_to(out, "]");
+
+        return out;
     }
 };
 #endif
