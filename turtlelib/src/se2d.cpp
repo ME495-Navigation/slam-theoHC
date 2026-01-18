@@ -2,7 +2,7 @@
 #include <turtlelib/angle.hpp>
 #include <istream>
 
-using namespace turtlelib;
+namespace turtlelib{
 
 //Helper macro for the stream operator
 #define REMOVE_COMMA if(is.peek() == ',') is.get();
@@ -157,6 +157,7 @@ Transform2D & Transform2D::operator*=(const Transform2D & rhs){
 
     return *this;
 }
+}
 
 #define FORMAT_COMMA out = std::format_to(out, ", ");
 
@@ -170,7 +171,7 @@ auto std::formatter<turtlelib::Twist2D, CharT>::format(const turtlelib::Twist2D 
         out = std::format_to(out, " rad/s, ");
     }
     else if(option == 'D'){
-        out = super::format(rad2deg(obj.omega), ctx);
+        out = super::format(turtlelib::rad2deg(obj.omega), ctx);
         out = std::format_to(out, " deg/s, ");
     }
     else{
@@ -196,7 +197,7 @@ auto std::formatter<turtlelib::Transform2D, CharT>::format(const turtlelib::Tran
         out = std::format_to(out, " rad/s, ");
     }
     else if(this->option == 'D'){
-        out = super::format(rad2deg(obj.rotation()), ctx);
+        out = super::format(turtlelib::rad2deg(obj.rotation()), ctx);
         out = std::format_to(out, " deg/s, ");
     }
     else{
