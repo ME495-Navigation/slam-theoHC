@@ -1,11 +1,12 @@
 #include <turtlelib/se2d.hpp>
 #include <turtlelib/angle.hpp>
-#include <istream>
+#include <iostream>
 
 namespace turtlelib{
 
 //Helper macro for the stream operator
 #define REMOVE_COMMA if(is.peek() == ',') is.get();
+#define REMOVE_SPACE if(is.peek() == ' ') is.get();
 
 std::istream & operator>>(std::istream & is, Twist2D & tw){
     bool HasDelimiter = false;
@@ -15,6 +16,7 @@ std::istream & operator>>(std::istream & is, Twist2D & tw){
     }
 
     is >> tw.omega;
+    REMOVE_SPACE
 
     std::string unitstr;
 
