@@ -104,7 +104,7 @@ TEST_CASE("Transform with rotation and translation input", "[transform]") // Gre
     REQUIRE(tf.translation().y == Catch::Approx(-1.0));
 }
 
-TEST_CASE("Apply a pure offset transformation to a point", "[transform]") // Coulson, Theo
+TEST_CASE("Apply a pure offset transformation to a point", "[transform]") // Theo, Coulson
 {
     turtlelib::Point2D p = {1.0, 2.0};
     turtlelib::Transform2D tf;
@@ -170,7 +170,7 @@ TEST_CASE("Transform inversion", "[transform]") // Gregory, Aiosa
     REQUIRE(tf.translation().y == Catch::Approx(4.9641016151));
 }
 
-TEST_CASE("Composing pure offset transforms", "[transform]") // Coulson, Theo
+TEST_CASE("Composing pure offset transforms", "[transform]") // Theo, Coulson
 {
     turtlelib::Transform2D tf1;
     turtlelib::Vector2D trans1 = {3.0, -4.0};
@@ -187,7 +187,7 @@ TEST_CASE("Composing pure offset transforms", "[transform]") // Coulson, Theo
     REQUIRE(tf1.translation().y == Catch::Approx(-2));
 }
 
-TEST_CASE("Composing pure rotation transforms", "[transform]") // Coulson, Theo
+TEST_CASE("Composing pure rotation transforms", "[transform]") // Theo, Coulson
 {
     turtlelib::Transform2D tf1= turtlelib::Transform2D(1.0);
 
@@ -296,7 +296,7 @@ TEST_CASE("Transform2D input without brackets", "[transform]") // Gregory, Aiosa
     REQUIRE(tf.translation().y == Catch::Approx(2.0));
 }
 
-TEST_CASE("Multiply to transforms", "[transform]") // Gregory, Aiosa
+TEST_CASE("Multiply two transforms", "[transform]") // Gregory, Aiosa
 {
     turtlelib::Transform2D tf1;
     turtlelib::Vector2D trans1 = {3.0, -4.0};
@@ -312,4 +312,39 @@ TEST_CASE("Multiply to transforms", "[transform]") // Gregory, Aiosa
     REQUIRE(result.rotation() == Catch::Approx(turtlelib::deg2rad(60.0)));
     REQUIRE(result.translation().x == Catch::Approx(3.0));
     REQUIRE(result.translation().y == Catch::Approx(-1.1715728753));
+}
+
+TEST_CASE("Format Twist Output", "[transform]") // Theo, Coulson
+{
+    turtlelib::Twist2D tw1 = turtlelib::Twist2D(1, 2, 3);
+    std::string str1 = std::format("{}", tw1);
+    std::string str2 = std::format("{:D}", tw1);
+    std::string str3 = std::format("{:R}", tw1);
+
+    REQUIRE(str1 == "<1, 2, 3>");
+    REQUIRE(str2 == "<57.29577951308232 deg/s, 2, 3>");
+    REQUIRE(str3 == "<1 rad/s, 2, 3>");
+}
+
+TEST_CASE("Format Transform Output", "[transform]") // Theo, Coulson
+{
+    turtlelib::Transform2D tf1 = turtlelib::Transform2D(turtlelib::Vector2D(1, 2), 3);
+    std::string str1 = std::format("{}", tf1);
+    std::string str2 = std::format("{:D}", tf1);
+    std::string str3 = std::format("{:R}", tf1);
+
+
+    REQUIRE(str1 == "{3, 1, 2}");
+    REQUIRE(str2 == "{171.88733853924697 deg, 1, 2}");
+    REQUIRE(str3 == "{3 rad, 1, 2}");
+}
+
+TEST_CASE("Transform setters", "[transform]") // Theo, Coulson
+{
+    turtlelib::Transform2D tf1 = turtlelib::Transform2D(turtlelib::Vector2D(1, 2), 3);
+    tf1.setrot(4);
+    tf1.setoffset(turtlelib::Vector2D(5,6));
+
+    REQUIRE(tf1.rotation() == Catch::Approx(4));
+    REQUIRE(tf1.translation() == turtlelib::Vector2D(5,6));
 }

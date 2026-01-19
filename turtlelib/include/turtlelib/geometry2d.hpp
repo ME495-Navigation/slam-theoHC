@@ -72,6 +72,12 @@ namespace turtlelib
     /// \return The dot product of a and b
     double operator*(const Vector2D & a, const Vector2D & b);
 
+    /// \brief Vector equality
+    /// \param a First vector
+    /// \param b Second vector
+    /// \return True if both vector components are equal
+    bool operator==(const Vector2D & a, const Vector2D & b);
+
     /// \brief Adding a vector to a point yields a new point displaced by the vector
     /// \param tail The origin of the vector's tail
     /// \param disp The displacement vector

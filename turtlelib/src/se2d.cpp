@@ -61,7 +61,7 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
 
     is >> rot;
     tf.setrot(rot);
-    
+
     REMOVE_SPACE
 
     std::string unitstr;
@@ -161,58 +161,4 @@ Transform2D & Transform2D::operator*=(const Transform2D & rhs){
 
     return *this;
 }
-}
-
-#define FORMAT_COMMA out = std::format_to(out, ", ");
-
-template<class CharT>
-auto std::formatter<turtlelib::Twist2D, CharT>::format(const turtlelib::Twist2D & obj, std::format_context& ctx){
-    auto out = ctx.out();
-
-    out = std::format_to(out, "<");
-    if(option == 'R'){
-        out = super::format(obj.omega, ctx);
-        out = std::format_to(out, " rad/s, ");
-    }
-    else if(option == 'D'){
-        out = super::format(turtlelib::rad2deg(obj.omega), ctx);
-        out = std::format_to(out, " deg/s, ");
-    }
-    else{
-        out = super::format(obj.omega, ctx);
-        FORMAT_COMMA
-    }
-    
-    out = super::format(obj.x, ctx);
-    FORMAT_COMMA
-    out = super::format(obj.y, ctx);
-    out = std::format_to(out, ">");
-
-    return out;
-}
-
-template<class CharT>
-auto std::formatter<turtlelib::Transform2D, CharT>::format(const turtlelib::Transform2D & obj, std::format_context& ctx){
-    auto out = ctx.out();
-
-    out = std::format_to(out, "{");
-    if(this->option == 'R'){
-        out = super::format(obj.rotation(), ctx);
-        out = std::format_to(out, " rad/s, ");
-    }
-    else if(this->option == 'D'){
-        out = super::format(turtlelib::rad2deg(obj.rotation()), ctx);
-        out = std::format_to(out, " deg/s, ");
-    }
-    else{
-        out = super::format(obj.rotation(), ctx);
-        FORMAT_COMMA
-    }
-    
-    out = super::format(obj.translation().x, ctx);
-    FORMAT_COMMA
-    out = super::format(obj.translation().y, ctx);
-    out = std::format_to(out, "}");
-
-    return out;
 }

@@ -3,9 +3,10 @@
 /// \file
 /// \brief Two-dimensional rigid body transformations.
 
-
+#pragma once
 #include <iosfwd>
 #include <turtlelib/geometry2d.hpp>
+#include <turtlelib/angle.hpp>
 #include <format>
 
 namespace turtlelib
@@ -116,6 +117,8 @@ namespace turtlelib
 
 }
 
+#define FORMAT_COMMA out = std::format_to(out, ", ");
+
 /// \brief print the Twist2D as "<w [<unit>], x, y>"
 /// An R at the beginning of the format-spec makes [<unit>] rad/s
 /// A  D at the beginning of the format-spec makes [<unit>] deg/s
@@ -130,14 +133,15 @@ class std::formatter<turtlelib::Twist2D, CharT> : public std::formatter<double, 
     public:
     using super = formatter<double, CharT>;
 
-    constexpr auto parse(std::format_parse_context& ctx){
+    template<class ParseContext>
+    constexpr auto parse(ParseContext& ctx){
         auto it = ctx.begin();
 
         if(it != ctx.end() && (*it == CharT('D') || *it == CharT('R'))){
             if(*it == CharT('D')) option = 'D';
             if(*it == CharT('R')) option = 'R';
 
-            *it++;
+            it++;
         }
 
         ctx.advance_to(it);
@@ -145,10 +149,34 @@ class std::formatter<turtlelib::Twist2D, CharT> : public std::formatter<double, 
         return super::parse(ctx);
     }
 
-    auto format(const turtlelib::Twist2D & obj, std::format_context& ctx);
+    template<class FormatContext>
+    auto format(const turtlelib::Twist2D & obj, FormatContext& ctx) const{
+        auto out = ctx.out();
+
+        out = std::format_to(out, "<");
+        if(option == 'R'){
+            out = super::format(obj.omega, ctx);
+            out = std::format_to(out, " rad/s, ");
+        }
+        else if(option == 'D'){
+            out = super::format(turtlelib::rad2deg(obj.omega), ctx);
+            out = std::format_to(out, " deg/s, ");
+        }
+        else{
+            out = super::format(obj.omega, ctx);
+            FORMAT_COMMA
+        }
+        
+        out = super::format(obj.x, ctx);
+        FORMAT_COMMA
+        out = super::format(obj.y, ctx);
+        out = std::format_to(out, ">");
+
+        return out;
+    }
 
     protected:
-    char option;
+    char option = '\0';
 };
 
 /// \brief A formatter for Transform2D
@@ -167,7 +195,31 @@ class std::formatter<turtlelib::Transform2D, CharT> : public std::formatter<turt
     using super = formatter<double, CharT>;
 
     public:
-    auto format(const turtlelib::Transform2D& obj, std::format_context& ctx);
+    template<class FormatContext>
+    auto format(const turtlelib::Transform2D& obj, FormatContext& ctx) const{
+        auto out = ctx.out();
+
+        out = std::format_to(out, "{{");
+        if(this->option == 'R'){
+            out = super::format(obj.rotation(), ctx);
+            out = std::format_to(out, " rad, ");
+        }
+        else if(this->option == 'D'){
+            out = super::format(turtlelib::rad2deg(obj.rotation()), ctx);
+            out = std::format_to(out, " deg, ");
+        }
+        else{
+            out = super::format(obj.rotation(), ctx);
+            FORMAT_COMMA
+        }
+        
+        out = super::format(obj.translation().x, ctx);
+        FORMAT_COMMA
+        out = super::format(obj.translation().y, ctx);
+        out = std::format_to(out, "}}");
+
+        return out;
+    }
 };
 
 #endif
