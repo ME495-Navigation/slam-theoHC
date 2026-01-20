@@ -10,7 +10,9 @@ add_library(turtlelib
 )
 
 add_executable(converter src/converter.cpp)
+add_executable(frame_main src/frame_main.cpp)
 target_link_libraries(converter PRIVATE turtlelib)
+target_link_libraries(frame_main PRIVATE turtlelib)
 
 target_include_directories(turtlelib
   PUBLIC

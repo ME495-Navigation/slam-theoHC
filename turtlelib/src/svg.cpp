@@ -9,9 +9,9 @@ void turtlelib::Svg::write(){
     for(Point2D point : points){
         std::cout << std::format("<circle cx=\"{}\" cy=\"{}\" r=\"3\" stroke=\"purple\" fill=\"purple\" stroke-width=\"1\"/>", point.x, point.y);
     }
+
+    std::cout << "</svg>";
 }
-
-
 
 void turtlelib::Svg::addPoint(Point2D newpoint){
     points.push_back(newpoint);

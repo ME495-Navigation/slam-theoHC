@@ -12,6 +12,8 @@
 
 namespace turtlelib
 {
+    struct Vector2D; //Gotta forward declare this
+
     /// \brief a 2-Dimensional Point
     struct Point2D
     {
