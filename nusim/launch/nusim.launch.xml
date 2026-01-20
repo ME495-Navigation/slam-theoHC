@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <node pkg="nusim" exec="nusimulator"/>
+
+    <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nusim)/config/nusim-rviz.rviz" on_exit='shutdown'/>
+
+</launch>

@@ -10,13 +10,31 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(tf2_ros)
+find_package(tf2)
 
 add_executable(nusimulator src/nusim.cpp)
-target_link_libraries(nusimulator PRIVATE rclcpp::rclcpp ${std_msgs_TARGETS} ${std_srvs_TARGETS})
+target_link_libraries(
+  nusimulator PRIVATE 
+  rclcpp::rclcpp
+  tf2::tf2
+  tf2_ros::tf2_ros
+  ${std_msgs_TARGETS} 
+  ${std_srvs_TARGETS} 
+  ${geometry_msgs_TARGETS}
+  ${visualization_msgs_TARGETS}
+)
 
 install(TARGETS
   nusimulator
   DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY
+  launch
+  config
+  DESTINATION share/${PROJECT_NAME}/)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
