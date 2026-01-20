@@ -30,6 +30,11 @@ public:
     declare_parameter("arena_x_length", 5.0);
     declare_parameter("arena_y_length", 5.0);
 
+    declare_parameter("obstacle.x", std::vector<double>());
+    declare_parameter("obstacle.y", std::vector<double>());
+    declare_parameter("obstacle.r", 3.0);
+
+
     x = get_parameter("x0").as_double();
     y = get_parameter("y0").as_double();
     theta = get_parameter("theta0").as_double();
@@ -41,11 +46,17 @@ public:
 
     std::chrono::milliseconds timer_period = std::chrono::milliseconds(timerrate);
 
+    auto PeristentQoS = rclcpp::QoS(10).transient_local();
+
     timesteppub = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
-    markerpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls", RMW_QOS_POLICY_LIFESPAN);
+    wallpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls", PeristentQoS);
+    obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles", PeristentQoS);
     simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::timer_callback, this));
     resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset", std::bind(&nusimulator::reset_callback, 
         this,std::placeholders::_1, std::placeholders::_2));
+    
+    publish_real_walls();
+    
   }
 
 private:
@@ -54,7 +65,8 @@ private:
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr resetsrv; 
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
 
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr markerpub;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr wallpub;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstaclepub;
 
     double x;
     double y;
@@ -85,8 +97,6 @@ private:
         t.transform.rotation.w = q.w();
 
         tf_broadcaster->sendTransform(t);
-
-        publish_real_walls();
     }
 
     void reset_callback(const std::shared_ptr<std_srvs::srv::Empty::Request> request,
@@ -102,11 +112,36 @@ private:
         theta = get_parameter("theta0").as_double();
     }
 
+    void publish_obstacle(){
+        auto walls = visualization_msgs::msg::MarkerArray();
+        
+        std::vector<double> xspots = get_parameter("obstacle.x").as_double_array();
+        std::vector<double> yspots = get_parameter("obstacle.x").as_double_array();
+        double rad = get_parameter("obstacle.r").as_double();
+
+        if(xspots.size() != yspots.size()){
+            RCLCPP_ERROR(get_logger(),
+                "obstacles.x and obstacles.y must be the same size");
+            rclcpp::shutdown();
+        }
+
+        for(int i = 0; i < xspots.size(); i++){
+            auto obst = visualization_msgs::msg::Marker();
+            obst.header.stamp = this->get_clock()->now();
+            obst.header.frame_id = "nusim/world";
+            obst.id = i;
+            obst.type = obst.CYLINDER;
+            obst.action = 0;
+        }
+    }
+
     void publish_real_walls(){
         auto walls = visualization_msgs::msg::MarkerArray();
 
         walls.markers.emplace_back(genWallPair(false));
-        // walls.markers.emplace_back(genWallPair(true));
+        walls.markers.emplace_back(genWallPair(true));
+
+        wallpub->publish(walls);
     }
 
     visualization_msgs::msg::Marker genWallPair(bool side){
@@ -117,8 +152,8 @@ private:
         auto walls = visualization_msgs::msg::Marker();
         walls.header.stamp = this->get_clock()->now();
         walls.header.frame_id = "nusim/world";
-        walls.id = 0;
-        walls.type = walls.CUBE;
+        walls.id = side ? 0 : 1;
+        walls.type = walls.CUBE_LIST;
         walls.action = 0;
         //color
         walls.color.r = 1;
@@ -126,7 +161,7 @@ private:
         walls.color.g = 0;
         walls.color.a = 1;
         //scale
-        walls.scale.x = side ? xlen : wall_thickness;
+        walls.scale.x = side ? xlen + 2 * wall_thickness : wall_thickness;
         walls.scale.y = side ? wall_thickness : ylen;
         walls.scale.z = .25;
         //position
@@ -134,8 +169,8 @@ private:
         wallpoint1.x = side ? 0 : wall_thickness/2 + ylen/2;
         wallpoint1.y = side ? wall_thickness/2 + ylen/2 : 0;
         auto wallpoint2 = geometry_msgs::msg::Point();
-        wallpoint2.x = side ? 0 : -wall_thickness/2 + ylen/2;
-        wallpoint2.y = side ? -wall_thickness/2 + ylen/2 : 0;
+        wallpoint2.x = side ? 0 : -(wall_thickness/2 + ylen/2);
+        wallpoint2.y = side ? -(wall_thickness/2 + ylen/2) : 0;
         walls.points.emplace_back(wallpoint1);
         walls.points.emplace_back(wallpoint2);
 

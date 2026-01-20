@@ -76,10 +76,10 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        {}
+        "": true
       Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /nusimulator/real_walls
@@ -145,10 +145,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3603983521461487
+      Pitch: 1.1253982782363892
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.455397367477417
+      Yaw: 3.090397357940674
     Saved: ~
 Window Geometry:
   Displays:
