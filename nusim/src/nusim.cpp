@@ -145,8 +145,8 @@ private:
             obst.color.g = 0;
             obst.color.a = 1;
             //scale
-            obst.scale.x = rad;
-            obst.scale.y = rad;
+            obst.scale.x = 2 * rad;
+            obst.scale.y = 2 * rad;
             obst.scale.z = .25;
             //position
             obst.pose.position.x = xspots.at(i);
