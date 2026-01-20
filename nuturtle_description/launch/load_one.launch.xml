@@ -2,9 +2,10 @@
     <arg name="use_jsp" default="true" description="Set to true or false to determine whether default joint states are published."/>
     <arg name="use_rviz" default="true" description="Set to true or false to determine whether to launch rviz."/>
     <arg name="color" default="purple" description="Color of the robot."/>
-
+<!-- begin_citation[12] -->
 <group>
     <push_ros_namespace namespace="$(var color)"/>
+<!-- end_citation[12] -->
     <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nuturtle_description)/config/load-one.rviz" on_exit='shutdown' if="$(eval '\'$(var use_rviz)\'==\'true\'')"/>
 
     <node pkg="robot_state_publisher" exec="robot_state_publisher">

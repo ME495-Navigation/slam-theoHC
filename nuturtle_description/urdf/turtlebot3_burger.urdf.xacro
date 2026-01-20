@@ -6,15 +6,16 @@
 
   <xacro:property name="yaml" value="$(find nuturtle_description)/config/diff_params.yaml" />
   
-  <!-- Begin_Citation[2] -->
   <xacro:property name="config" value="${xacro.load_yaml(yaml)['/**']['ros__parameters']}"/>
 
+<!-- &&&&&&&&&& begin_citation [10] &&&&&&&&&& -->
   <xacro:arg name="color" default=""/>
   <xacro:property name="color" value="$(arg color)"/>
 
   <xacro:if value="${color == 'red'}">
     <xacro:property name="base_material" value="red"/>
   </xacro:if>
+<!-- &&&&&&&&&& end_citation [10] &&&&&&&&&& -->
 
   <xacro:if value="${color == 'green'}">
     <xacro:property name="base_material" value="green"/>

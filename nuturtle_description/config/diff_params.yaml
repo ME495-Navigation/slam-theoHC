@@ -1,3 +1,4 @@
+##### begin_citation [11] #####
 /**:
   ros__parameters:
     wheel_radius: 0.066
@@ -6,3 +7,4 @@
     motor_cmd_per_rad_sec: 0.024
     encoder_ticks_per_rad: 651.9
     collision_radius: 0.11
+##### end_citation [11] #####

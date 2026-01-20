@@ -11,6 +11,8 @@ void turtlelib::Svg::write(){
     }
 }
 
+
+
 void turtlelib::Svg::addPoint(Point2D newpoint){
     points.push_back(newpoint);
 }

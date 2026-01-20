@@ -17,3 +17,9 @@ Citation 7: Several minor c++ issues were fixed by ChatGPT. Output was used as r
 Citation 8: Formatters fixed by ChatGPT. Output was used as reference rather than copy-paste.
 
 Citation 9: An error of definitions, fixed by chatgpt (inline keyword was needed)
+
+Citation 10: Xacro color setup from Amber
+
+Citation 11: contents from Kyle
+
+Citation 12: proper setup of the namespace from Kyle
