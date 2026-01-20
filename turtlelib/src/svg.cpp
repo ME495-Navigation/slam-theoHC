@@ -50,9 +50,11 @@ void turtlelib::Svg::addPoint(Point2D newpoint, std::string color, unsigned int 
 
 void turtlelib::Svg::addFrame(Transform2D frame, std::string name){
     dispFrame newframe = dispFrame();
+    Vector2D offset = frame.translation();
+    offset.y *= -1;
+    frame.setoffset(offset);
     newframe.transform = frame;
     newframe.name = name;
-
     frames.push_back(newframe);
 }
 
