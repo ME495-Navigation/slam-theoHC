@@ -25,6 +25,10 @@ void turtlelib::Svg::write()
         drawPoint(point);
     }
 
+    for(dispFrame frame : frames){
+        drawFrame(frame);
+    }
+
     std::cout << "</svg>";
 }
 
@@ -57,26 +61,28 @@ void turtlelib::Svg::drawFrame(dispFrame frame){
 
     Point2D origin = drawtrans(Point2D(0,0));
     Point2D xhead = drawtrans(Point2D(1,0));
-    Point2D yhead = drawtrans(Point2D(0,1));
+    Point2D yhead = drawtrans(Point2D(0,-1));
 
     std::cout << "<g>";
 
     std::cout << std::format(
-        "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"red\" stroke-width=\"2\" marker-end=\"url(#Arrow1Sstart)\"/>",
-        origin.x * dpi, origin.y * dpi, xhead.x * dpi, xhead.y * dpi);
+        "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"red\" stroke-width=\"2\" marker-start=\"url(#Arrow1Sstart)\"/>",
+        xhead.x * dpi, xhead.y * dpi, origin.x * dpi, origin.y * dpi);
 
     std::cout << std::format(
-        "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"green\" stroke-width=\"2\" marker-end=\"url(#Arrow1Sstart)\"/>",
-        origin.x * dpi, origin.y * dpi, yhead.x * dpi, yhead.y * dpi);
+        "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"green\" stroke-width=\"2\" marker-start=\"url(#Arrow1Sstart)\"/>",
+        yhead.x * dpi, yhead.y * dpi, origin.x * dpi, origin.y * dpi);
     
     std::cout << std::format(
-        "<text x=\"{}\" y=\"{}\" fill=\"black\" font-size=\"12\">{}</text>",
+        "<text x=\"{}\" y=\"{}\" fill=\"black\" font-size=\"12\">{{{}}}</text>",
         origin.x * dpi + 5, origin.y * dpi - 5, frame.name);
 
     std::cout << "</g>";
 }
 
 void turtlelib::Svg::drawPoint(dispPoint point){
+    point.point.y *= -1;
+    
     Transform2D drawtrans = CenterOfPage * frames.at(point.frameID).transform;
 
     Point2D cpoint = drawtrans(point.point);

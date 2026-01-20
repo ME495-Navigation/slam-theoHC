@@ -4,7 +4,7 @@
 int main(){
     turtlelib::Svg svger = turtlelib::Svg();
 
-    svger.addPoint(turtlelib::Point2D(0, 0), "purple", 0);
+    svger.addPoint(turtlelib::Point2D(0, 1), "purple", 0);
 
     svger.write();
 }
