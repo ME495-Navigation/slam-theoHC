@@ -53,127 +53,21 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz_default_plugins/TF
-      Enabled: true
+      Enabled: false
       Filter (blacklist): ""
       Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        blue/base_footprint:
-          Value: true
-        blue/base_link:
-          Value: true
-        blue/base_scan:
-          Value: true
-        blue/caster_back_link:
-          Value: true
-        blue/imu_link:
-          Value: true
-        blue/wheel_left_link:
-          Value: true
-        blue/wheel_right_link:
-          Value: true
-        green/base_footprint:
-          Value: true
-        green/base_link:
-          Value: true
-        green/base_scan:
-          Value: true
-        green/caster_back_link:
-          Value: true
-        green/imu_link:
-          Value: true
-        green/wheel_left_link:
-          Value: true
-        green/wheel_right_link:
-          Value: true
-        nusim/world:
-          Value: true
-        purple/base_footprint:
-          Value: true
-        purple/base_link:
-          Value: true
-        purple/base_scan:
-          Value: true
-        purple/caster_back_link:
-          Value: true
-        purple/imu_link:
-          Value: true
-        purple/wheel_left_link:
-          Value: true
-        purple/wheel_right_link:
-          Value: true
-        red/base_footprint:
-          Value: true
-        red/base_link:
-          Value: true
-        red/base_scan:
-          Value: true
-        red/caster_back_link:
-          Value: true
-        red/imu_link:
-          Value: true
-        red/wheel_left_link:
-          Value: true
-        red/wheel_right_link:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        nusim/world:
-          blue/base_footprint:
-            blue/base_link:
-              blue/base_scan:
-                {}
-              blue/caster_back_link:
-                {}
-              blue/imu_link:
-                {}
-              blue/wheel_left_link:
-                {}
-              blue/wheel_right_link:
-                {}
-          green/base_footprint:
-            green/base_link:
-              green/base_scan:
-                {}
-              green/caster_back_link:
-                {}
-              green/imu_link:
-                {}
-              green/wheel_left_link:
-                {}
-              green/wheel_right_link:
-                {}
-          purple/base_footprint:
-            purple/base_link:
-              purple/base_scan:
-                {}
-              purple/caster_back_link:
-                {}
-              purple/imu_link:
-                {}
-              purple/wheel_left_link:
-                {}
-              purple/wheel_right_link:
-                {}
-          red/base_footprint:
-            red/base_link:
-              red/base_scan:
-                {}
-              red/caster_back_link:
-                {}
-              red/imu_link:
-                {}
-              red/wheel_left_link:
-                {}
-              red/wheel_right_link:
-                {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -456,25 +350,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.707232713699341
+      Distance: 2.152350902557373
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.028692366555333138
+        Y: -0.19674216210842133
+        Z: -0.0327993668615818
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0503978729248047
+      Pitch: 0.7503980994224548
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.168581962585449
+      Yaw: 6.273582935333252
     Saved: ~
 Window Geometry:
   Displays:
