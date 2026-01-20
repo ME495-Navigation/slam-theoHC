@@ -30,9 +30,9 @@ public:
     declare_parameter("arena_x_length", 5.0);
     declare_parameter("arena_y_length", 5.0);
 
-    declare_parameter("obstacle.x", std::vector<double>());
-    declare_parameter("obstacle.y", std::vector<double>());
-    declare_parameter("obstacle.r", 3.0);
+    declare_parameter("obstacles.x", std::vector<double>());
+    declare_parameter("obstacles.y", std::vector<double>());
+    declare_parameter("obstacles.r", 3.0);
 
 
     x = get_parameter("x0").as_double();
@@ -48,10 +48,13 @@ public:
 
     auto PeristentQoS = rclcpp::QoS(10).transient_local();
 
+    //publishers
     timesteppub = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
     wallpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls", PeristentQoS);
     obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles", PeristentQoS);
+    //timers
     simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::timer_callback, this));
+    //services
     resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset", std::bind(&nusimulator::reset_callback, 
         this,std::placeholders::_1, std::placeholders::_2));
     
@@ -118,9 +121,9 @@ private:
     void publish_obstacle(){
         auto obsts = visualization_msgs::msg::MarkerArray();
         
-        std::vector<double> xspots = get_parameter("obstacle.x").as_double_array();
-        std::vector<double> yspots = get_parameter("obstacle.x").as_double_array();
-        double rad = get_parameter("obstacle.r").as_double();
+        std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
+        std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
+        double rad = get_parameter("obstacles.r").as_double();
 
         if(xspots.size() != yspots.size()){
             RCLCPP_ERROR(get_logger(),
