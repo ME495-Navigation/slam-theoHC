@@ -1,4 +1,4 @@
-I have worked with: Miguel
+I have worked with: Miguel, Amber, Kyle, Greg, Nolan, Daniel, Jyothi
 
 Citation 1: I used ChatGPT to produce my turtlelib CMakeLists.txt. The conversation includes discussion of doxygen, but doxygen was taken from the course website. Troubleshooting was also provided for my build.
 

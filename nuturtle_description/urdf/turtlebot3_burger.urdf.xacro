@@ -4,6 +4,11 @@
 
 <!-- This file has been modified to replace all references to turtlebot3 files with copies made in this package -->
 
+  <xacro:property name="yaml" value="$(find nuturtle_description)/config/diff_params.yaml" />
+  
+  <!-- Begin_Citation[2] -->
+  <xacro:property name="config" value="${xacro.load_yaml(yaml)['/**']['ros__parameters']}"/>
+
   <xacro:arg name="namespace" default=""/>
   <xacro:property name="namespace" value="$(arg namespace)"/>
 
@@ -68,7 +73,7 @@
     <collision>
       <origin xyz="-0.032 0 0.070" rpy="0 0 0"/>
       <geometry>
-        <box size="0.140 0.140 0.143"/>
+        <cylinder length=".0143" radius="${config['collision_radius']}"/>
       </geometry>
     </collision>
 
@@ -82,7 +87,7 @@
   <joint name="${namespace}wheel_left_joint" type="continuous">
     <parent link="${namespace}base_link"/>
     <child link="${namespace}wheel_left_link"/>
-    <origin xyz="0.0 0.08 0.023" rpy="-1.57 0 0"/>
+    <origin xyz="0.0 ${config['track_width'] / 2} 0.023" rpy="-1.57 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
@@ -98,7 +103,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.018" radius="0.033"/>
+        <cylinder length="0.018" radius="${config['wheel_radius']}"/>
       </geometry>
     </collision>
 
@@ -112,7 +117,7 @@
   <joint name="${namespace}wheel_right_joint" type="continuous">
     <parent link="${namespace}base_link"/>
     <child link="${namespace}wheel_right_link"/>
-    <origin xyz="0.0 -0.080 0.023" rpy="-1.57 0 0"/>
+    <origin xyz="0.0 ${-1 * config['track_width'] / 2} 0.023" rpy="-1.57 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
@@ -128,7 +133,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.018" radius="0.033"/>
+        <cylinder length="0.018" radius="${config['wheel_radius']}"/>
       </geometry>
     </collision>
 
