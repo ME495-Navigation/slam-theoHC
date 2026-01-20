@@ -56,7 +56,7 @@ public:
         this,std::placeholders::_1, std::placeholders::_2));
     
     publish_real_walls();
-    
+    publish_obstacle();
   }
 
 private:
@@ -96,6 +96,9 @@ private:
         t.transform.rotation.z = q.z();
         t.transform.rotation.w = q.w();
 
+        t.transform.translation.x = x;
+        t.transform.translation.y = y;
+
         tf_broadcaster->sendTransform(t);
     }
 
@@ -113,7 +116,7 @@ private:
     }
 
     void publish_obstacle(){
-        auto walls = visualization_msgs::msg::MarkerArray();
+        auto obsts = visualization_msgs::msg::MarkerArray();
         
         std::vector<double> xspots = get_parameter("obstacle.x").as_double_array();
         std::vector<double> yspots = get_parameter("obstacle.x").as_double_array();
@@ -125,21 +128,38 @@ private:
             rclcpp::shutdown();
         }
 
-        for(int i = 0; i < xspots.size(); i++){
+        for(size_t i = 0; i < xspots.size(); i++){
+            //setup
             auto obst = visualization_msgs::msg::Marker();
             obst.header.stamp = this->get_clock()->now();
             obst.header.frame_id = "nusim/world";
             obst.id = i;
             obst.type = obst.CYLINDER;
             obst.action = 0;
+            //color
+            obst.color.r = 1;
+            obst.color.b = 0;
+            obst.color.g = 0;
+            obst.color.a = 1;
+            //scale
+            obst.scale.x = rad;
+            obst.scale.y = rad;
+            obst.scale.z = .25;
+            //position
+            obst.pose.position.x = xspots.at(i);
+            obst.pose.position.y = yspots.at(i);
+            //add to array
+            obsts.markers.push_back(obst);
         }
+
+        obstaclepub->publish(obsts);
     }
 
     void publish_real_walls(){
         auto walls = visualization_msgs::msg::MarkerArray();
 
-        walls.markers.emplace_back(genWallPair(false));
-        walls.markers.emplace_back(genWallPair(true));
+        walls.markers.push_back(genWallPair(false));
+        walls.markers.push_back(genWallPair(true));
 
         wallpub->publish(walls);
     }

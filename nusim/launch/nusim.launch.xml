@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+    <arg name="config_file" default="$(find-pkg-share nusim)/config/basic_world.yaml" description="The config file to use for world setup."/>
 
-    <node pkg="nusim" exec="nusimulator"/>
+    <node pkg="nusim" exec="nusimulator">
+        <param from="$(var config_file)"/>
+    </node>
 
-    <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nusim)/config/nusim-rviz.rviz" on_exit='shutdown'/>
+    <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nusim)/config/nusim.rviz" on_exit='shutdown'/>
 
 </launch>
