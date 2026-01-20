@@ -9,8 +9,26 @@
   <!-- Begin_Citation[2] -->
   <xacro:property name="config" value="${xacro.load_yaml(yaml)['/**']['ros__parameters']}"/>
 
-  <xacro:arg name="namespace" default=""/>
-  <xacro:property name="namespace" value="$(arg namespace)"/>
+  <xacro:arg name="color" default=""/>
+  <xacro:property name="color" value="$(arg color)"/>
+
+  <xacro:if value="${color == 'red'}">
+    <xacro:property name="base_material" value="red"/>
+  </xacro:if>
+
+  <xacro:if value="${color == 'green'}">
+    <xacro:property name="base_material" value="green"/>
+  </xacro:if>
+
+  <xacro:if value="${color == 'blue'}">
+    <xacro:property name="base_material" value="blue"/>
+  </xacro:if>
+
+  <xacro:if value="${color == 'purple'}">
+    <xacro:property name="base_material" value="purple"/>
+  </xacro:if>
+
+  <xacro:property name="namespace" value=""/>
 
   <!-- Init colour -->
   <material name="black">
@@ -53,6 +71,10 @@
     <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
 
+  <material name="purple">
+    <color rgba="0.3 .16 .52 1.0"/>
+  </material>
+
   <link name="${namespace}base_footprint"/>
 
   <joint name="${namespace}base_joint" type="fixed">
@@ -67,7 +89,7 @@
       <geometry>
         <mesh filename="package://nuturtle_description/meshes/burger_base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="light_black"/>
+      <material name="${base_material}"/>
     </visual>
 
     <collision>
@@ -97,7 +119,7 @@
       <geometry>
         <mesh filename="package://nuturtle_description/meshes/left_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark"/>
+      <material name="${base_material}"/>
     </visual>
 
     <collision>
@@ -127,7 +149,7 @@
       <geometry>
         <mesh filename="package://nuturtle_description/meshes/right_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark"/>
+      <material name="${base_material}"/>
     </visual>
 
     <collision>
@@ -185,7 +207,7 @@
       <geometry>
         <mesh filename="package://nuturtle_description/meshes/lds.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark"/>
+      <material name="${base_material}"/>
     </visual>
 
     <collision>
