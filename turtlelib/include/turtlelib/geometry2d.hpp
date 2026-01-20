@@ -20,6 +20,9 @@ namespace turtlelib
 
         /// \brief the y coordinate
         double y = 0.0;
+
+        /// \brief allow us to make a point from a vector
+        Point2D operator=(const Vector2D & in);
     };
 
     /// \brief Input a 2 dimensional point
@@ -44,6 +47,9 @@ namespace turtlelib
 
         /// \brief the y coordinate
         double y = 0.0;
+
+        /// \brief allow us to make a vector from a point
+        Vector2D operator=(const Point2D & in);
     };
 
     /// \brief Subtracting one point from another yields a vector

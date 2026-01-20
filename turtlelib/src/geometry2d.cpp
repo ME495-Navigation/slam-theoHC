@@ -59,9 +59,10 @@ namespace turtlelib{
 
     std::istream & operator>>(std::istream & is, Vector2D & p){
         Point2D dummyval;
+
         readPoint(is, dummyval, '[', ']');
-        p.x = dummyval.x;
-        p.y = dummyval.y;
+
+        p = dummyval;
 
         return is;
     }
@@ -93,5 +94,13 @@ namespace turtlelib{
 
     bool operator==(const Vector2D & a, const Vector2D & b){
         return a.x == b.x && a.y == b.y;
+    }
+
+    Vector2D Vector2D::operator=(const Point2D & in){
+        return Vector2D(in.x, in.y);
+    }
+
+    Point2D Point2D::operator=(const Vector2D & in){
+        return Point2D(in.x, in.y);
     }
 }
