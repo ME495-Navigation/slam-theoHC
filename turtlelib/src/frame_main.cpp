@@ -1,18 +1,53 @@
 #include <turtlelib/svg.hpp>
 #include <turtlelib/se2d.hpp>
+#include <iostream>
 
 int main(){
-    turtlelib::Svg svger = turtlelib::Svg();
+    std::cout << "Enter two transforms in the format {theta, x, y}\n";
 
-    svger.addPoint(turtlelib::Point2D(0, 1), "purple", 0);
+    turtlelib::Transform2D tab, tbc;
+    std::cin >> tab >> tbc;
 
-    svger.addFrame(turtlelib::Transform2D(turtlelib::Vector2D(2, 2), turtlelib::deg2rad(45)), "b");
+    std::cout << std::format("Transform A to B: {}",  tab) << "\n";
+    std::cout << std::format("Transform B to A: {}",  tab.inv()) << "\n";
+    std::cout << std::format("Transform B to C: {}",  tbc) << "\n";
+    std::cout << std::format("Transform C to B: {}",  tbc.inv()) << "\n";
 
-    svger.addFrame(turtlelib::Transform2D(turtlelib::Vector2D(1, 1), turtlelib::deg2rad(45)), "c", 1);
+    std::cout << "Enter a point in frame A (format: (x, y) or x y): ";
+    turtlelib::Point2D pa;
+    std::cin >> pa;
 
-    svger.addPoint(turtlelib::Point2D(0, 2), "purple", 1);
+    turtlelib::Point2D pb = tab(pa);
+    turtlelib::Point2D pc = tbc(pb);
 
-    svger.addVector(turtlelib::Vector2D(1, 1), "blue", 1);
+    std::cout << std::format("Point in frame A: {}", pa) << "\n";
+    std::cout << std::format("Point in frame B: {}", pb) << "\n";
+    std::cout << std::format("Point in frame C: {}", pc) << "\n";
 
-    svger.write();
+    std::cout << "Enter a vector in frame B (format: [x, y] or x y): ";
+    turtlelib::Vector2D vb;
+    std::cin >> vb;
+
+    std::cout << std::format("Vector in frame B: {}", vb) << "\n";
+    turtlelib::Vector2D vbhat = turtlelib::normalize(vb);
+    std::cout << std::format("Normalized vector in frame B: {}", vbhat) << "\n";
+    turtlelib::Vector2D va = tab.inv()(vb);
+    turtlelib::Vector2D vc = tbc(vb);
+    std::cout << std::format("Vector in frame A: {}", va) << "\n";
+    std::cout << std::format("Vector in frame C: {}", vc) << "\n";
+
+    turtlelib::Svg svgvis;
+    svgvis.addFrame(tab, "b");
+    svgvis.addFrame(tbc, "c", 1);
+
+    svgvis.addPoint(pa, "purple", 0);
+    svgvis.addPoint(pb, "brown", 1);
+    svgvis.addPoint(pc, "orange", 2);
+
+    svgvis.addVector(va, "purple", 0);
+    svgvis.addVector(vb, "black", 1);
+    svgvis.addVector(vbhat, "brown", 1);
+    svgvis.addVector(vc, "orange", 2);
+
+    svgvis.write("exercises/B6_frame_input.svg");
 }
