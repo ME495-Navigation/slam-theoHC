@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+    <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.xml">
+        <arg name="use_rviz" value="false"/>
+        <arg name="color" value="red"/>
+    </include>
+
     <arg name="config_file" default="$(find-pkg-share nusim)/config/basic_world.yaml" description="The config file to use for world setup."/>
 
     <node pkg="nusim" exec="nusimulator">

@@ -3,6 +3,8 @@
 the nusim package provides a simulator and visualizer for a SLAM system running on the turtlebot3.
 It simulates a rectangular arena with cylindrical obstacles. Red objects in rviz represent "ground truth", other colors represent the system's current understanding of its surroundings.
 
+![](images/nusim1.png)
+
 Launchfiles:
 
 - nusim.launch.xml
