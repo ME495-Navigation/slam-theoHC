@@ -74,9 +74,9 @@ namespace turtlelib{
 
         void drawVector(dispVec vector);
 
-        /// @brief 
-        /// @param yinch 
-        /// @return 
+        /// @brief Takes the y position in inches and returns its svg coordinates
+        /// @param yinch the y position in inches
+        /// @return the proper svg coordinates for the object
         float getYPos(float yinch);
     };
 }
