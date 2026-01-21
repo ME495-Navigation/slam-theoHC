@@ -17,12 +17,12 @@ find_package(tf2)
 
 add_executable(nusimulator src/nusim.cpp)
 target_link_libraries(
-  nusimulator PRIVATE 
+  nusimulator PRIVATE
   rclcpp::rclcpp
   tf2::tf2
   tf2_ros::tf2_ros
-  ${std_msgs_TARGETS} 
-  ${std_srvs_TARGETS} 
+  ${std_msgs_TARGETS}
+  ${std_srvs_TARGETS}
   ${geometry_msgs_TARGETS}
   ${visualization_msgs_TARGETS}
 )
