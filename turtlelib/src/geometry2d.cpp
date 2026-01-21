@@ -6,19 +6,21 @@ namespace turtlelib{
 
     std::istream & readPoint(std::istream & is, Point2D & p, char openDelim = '(', char closeDelim = ')'){
         bool hasParens = false;
+        is >> std::ws;
         if(is.peek() == openDelim){
             is.get();
             hasParens = true;
         }
 
         is >> p.x;
-
+        is >> std::ws;
         if(is.peek() == ','){
             is.get();
         }
 
         is >> p.y;
 
+        is >> std::ws;
         if(is.peek() == closeDelim){
             if(hasParens){
                 is.get();

@@ -7,13 +7,14 @@ int main(){
 
     turtlelib::Transform2D tab, tbc;
     std::cin >> tab >> tbc;
+    std::cout << "after tab: fail=" << std::cin.fail() << "\n";
 
     std::cout << std::format("Transform A to B: {}",  tab) << "\n";
     std::cout << std::format("Transform B to A: {}",  tab.inv()) << "\n";
     std::cout << std::format("Transform B to C: {}",  tbc) << "\n";
     std::cout << std::format("Transform C to B: {}",  tbc.inv()) << "\n";
 
-    std::cout << "Enter a point in frame A (format: (x, y) or x y): ";
+    std::cout << "Enter a point in frame A (format: (x, y) or x y): \n";
     turtlelib::Point2D pa;
     std::cin >> pa;
 
@@ -24,7 +25,7 @@ int main(){
     std::cout << std::format("Point in frame B: {}", pb) << "\n";
     std::cout << std::format("Point in frame C: {}", pc) << "\n";
 
-    std::cout << "Enter a vector in frame B (format: [x, y] or x y): ";
+    std::cout << "Enter a vector in frame B (format: [x, y] or x y): \n";
     turtlelib::Vector2D vb;
     std::cin >> vb;
 

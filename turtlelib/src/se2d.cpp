@@ -51,6 +51,7 @@ std::istream & operator>>(std::istream & is, Twist2D & tw){
 }
 
 std::istream & operator>>(std::istream & is, Transform2D & tf){
+    is >> std::ws;
     bool HasDelimiter = false;
     if(is.peek() == '{'){
         HasDelimiter = true;
