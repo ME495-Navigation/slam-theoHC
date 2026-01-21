@@ -66,11 +66,26 @@ void turtlelib::Svg::addVector(Vector2D newvec, std::string color, unsigned int 
     vectors.push_back(vector);
 }
 
-void turtlelib::Svg::addFrame(Transform2D frame, std::string name){
+void turtlelib::Svg::addFrame(Transform2D frame, std::string name, unsigned int frameID){
     dispFrame newframe = dispFrame();
     Vector2D offset = frame.translation();
     offset.y *= -1;
     frame.setoffset(offset);
+
+    if(frameID != 0){
+        if(frameID >= frames.size()) {
+            return;
+        }
+        
+        Vector2D parentoffset = frames.at(frameID).transform.translation();
+        parentoffset.y *= -1;
+        Transform2D parenttransform = frames.at(frameID).transform;;
+        // parenttransform.setoffset(parentoffset);
+
+        frame = parenttransform * frame;
+    }
+
+
     newframe.transform = frame;
     newframe.name = name;
     frames.push_back(newframe);

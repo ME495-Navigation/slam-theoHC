@@ -8,6 +8,8 @@ int main(){
 
     svger.addFrame(turtlelib::Transform2D(turtlelib::Vector2D(2, 2), turtlelib::deg2rad(45)), "b");
 
+    svger.addFrame(turtlelib::Transform2D(turtlelib::Vector2D(1, 1), turtlelib::deg2rad(45)), "c", 1);
+
     svger.addPoint(turtlelib::Point2D(0, 2), "purple", 1);
 
     svger.addVector(turtlelib::Vector2D(1, 1), "blue", 1);
