@@ -50,155 +50,164 @@ public:
 
     //publishers
     timesteppub = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
-    wallpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls", PeristentQoS);
-    obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles", PeristentQoS);
+    wallpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls",
+      PeristentQoS);
+    obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles",
+      PeristentQoS);
     //timers
     simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::timer_callback, this));
     //services
-    resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset", std::bind(&nusimulator::reset_callback, 
-        this,std::placeholders::_1, std::placeholders::_2));
-    
+    resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset",
+      std::bind(&nusimulator::reset_callback,
+        this, std::placeholders::_1, std::placeholders::_2));
+
     publish_real_walls();
     publish_obstacle();
   }
 
 private:
-    rclcpp::TimerBase::SharedPtr simtick;
-    rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timesteppub;
-    rclcpp::Service<std_srvs::srv::Empty>::SharedPtr resetsrv; 
-    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
+  rclcpp::TimerBase::SharedPtr simtick;
+  rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timesteppub;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr resetsrv;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
 
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr wallpub;
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstaclepub;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr wallpub;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstaclepub;
 
-    double x;
-    double y;
-    double theta;
+  double x;
+  double y;
+  double theta;
 
-    int count;
+  int count;
 
-    const float wall_thickness = .1;
+  const float wall_thickness = .1;
 
-    void timer_callback(){
+  void timer_callback()
+  {
         //Publish current timestep
-        auto timemsg = std_msgs::msg::UInt64();
-        timemsg.data = count++;
-        this->timesteppub->publish(timemsg);
+    auto timemsg = std_msgs::msg::UInt64();
+    timemsg.data = count++;
+    this->timesteppub->publish(timemsg);
 
         //Publish transform
-        geometry_msgs::msg::TransformStamped t;
-        
-        t.header.stamp = this->get_clock()->now();
-        t.header.frame_id = "nusim/world";
-        t.child_frame_id = "red/base_footprint";
+    geometry_msgs::msg::TransformStamped t;
 
-        tf2::Quaternion q;
-        q.setRPY(0, 0, theta);
-        t.transform.rotation.x = q.x();
-        t.transform.rotation.y = q.y();
-        t.transform.rotation.z = q.z();
-        t.transform.rotation.w = q.w();
+    t.header.stamp = this->get_clock()->now();
+    t.header.frame_id = "nusim/world";
+    t.child_frame_id = "red/base_footprint";
 
-        t.transform.translation.x = x;
-        t.transform.translation.y = y;
+    tf2::Quaternion q;
+    q.setRPY(0, 0, theta);
+    t.transform.rotation.x = q.x();
+    t.transform.rotation.y = q.y();
+    t.transform.rotation.z = q.z();
+    t.transform.rotation.w = q.w();
 
-        tf_broadcaster->sendTransform(t);
-    }
+    t.transform.translation.x = x;
+    t.transform.translation.y = y;
 
-    void reset_callback(const std::shared_ptr<std_srvs::srv::Empty::Request> request,
-    const std::shared_ptr<std_srvs::srv::Empty::Response> response){
+    tf_broadcaster->sendTransform(t);
+  }
+
+  void reset_callback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request> request,
+    const std::shared_ptr<std_srvs::srv::Empty::Response> response)
+  {
         //Reset count
-        (void)request;
-        (void)response;
-        count = 0;
+    (void)request;
+    (void)response;
+    count = 0;
 
         //Reset robot position
-        x = get_parameter("x0").as_double();
-        y = get_parameter("y0").as_double();
-        theta = get_parameter("theta0").as_double();
-    }
+    x = get_parameter("x0").as_double();
+    y = get_parameter("y0").as_double();
+    theta = get_parameter("theta0").as_double();
+  }
 
-    void publish_obstacle(){
-        auto obsts = visualization_msgs::msg::MarkerArray();
-        
-        std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
-        std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
-        double rad = get_parameter("obstacles.r").as_double();
+  void publish_obstacle()
+  {
+    auto obsts = visualization_msgs::msg::MarkerArray();
 
-        if(xspots.size() != yspots.size()){
-            RCLCPP_ERROR(get_logger(),
+    std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
+    std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
+    double rad = get_parameter("obstacles.r").as_double();
+
+    if(xspots.size() != yspots.size()) {
+      RCLCPP_ERROR(get_logger(),
                 "obstacles.x and obstacles.y must be the same size");
-            rclcpp::shutdown();
-        }
+      rclcpp::shutdown();
+    }
 
-        for(size_t i = 0; i < xspots.size(); i++){
+    for(size_t i = 0; i < xspots.size(); i++) {
             //setup
-            auto obst = visualization_msgs::msg::Marker();
-            obst.header.stamp = this->get_clock()->now();
-            obst.header.frame_id = "nusim/world";
-            obst.id = i;
-            obst.type = obst.CYLINDER;
-            obst.action = 0;
+      auto obst = visualization_msgs::msg::Marker();
+      obst.header.stamp = this->get_clock()->now();
+      obst.header.frame_id = "nusim/world";
+      obst.id = i;
+      obst.type = obst.CYLINDER;
+      obst.action = 0;
             //color
-            obst.color.r = 1;
-            obst.color.b = 0;
-            obst.color.g = 0;
-            obst.color.a = 1;
+      obst.color.r = 1;
+      obst.color.b = 0;
+      obst.color.g = 0;
+      obst.color.a = 1;
             //scale
-            obst.scale.x = 2 * rad;
-            obst.scale.y = 2 * rad;
-            obst.scale.z = .25;
+      obst.scale.x = 2 * rad;
+      obst.scale.y = 2 * rad;
+      obst.scale.z = .25;
             //position
-            obst.pose.position.x = xspots.at(i);
-            obst.pose.position.y = yspots.at(i);
+      obst.pose.position.x = xspots.at(i);
+      obst.pose.position.y = yspots.at(i);
             //add to array
-            obsts.markers.push_back(obst);
-        }
-
-        obstaclepub->publish(obsts);
+      obsts.markers.push_back(obst);
     }
 
-    void publish_real_walls(){
-        auto walls = visualization_msgs::msg::MarkerArray();
+    obstaclepub->publish(obsts);
+  }
 
-        walls.markers.push_back(genWallPair(false));
-        walls.markers.push_back(genWallPair(true));
+  void publish_real_walls()
+  {
+    auto walls = visualization_msgs::msg::MarkerArray();
 
-        wallpub->publish(walls);
-    }
+    walls.markers.push_back(genWallPair(false));
+    walls.markers.push_back(genWallPair(true));
 
-    visualization_msgs::msg::Marker genWallPair(bool side){
-        double xlen = get_parameter("arena_x_length").as_double();
-        double ylen = get_parameter("arena_y_length").as_double();
+    wallpub->publish(walls);
+  }
+
+  visualization_msgs::msg::Marker genWallPair(bool side)
+  {
+    double xlen = get_parameter("arena_x_length").as_double();
+    double ylen = get_parameter("arena_y_length").as_double();
 
         //wall setup [horizontal ones]
-        auto walls = visualization_msgs::msg::Marker();
-        walls.header.stamp = this->get_clock()->now();
-        walls.header.frame_id = "nusim/world";
-        walls.id = side ? 0 : 1;
-        walls.type = walls.CUBE_LIST;
-        walls.action = 0;
+    auto walls = visualization_msgs::msg::Marker();
+    walls.header.stamp = this->get_clock()->now();
+    walls.header.frame_id = "nusim/world";
+    walls.id = side ? 0 : 1;
+    walls.type = walls.CUBE_LIST;
+    walls.action = 0;
         //color
-        walls.color.r = 1;
-        walls.color.b = 0;
-        walls.color.g = 0;
-        walls.color.a = 1;
+    walls.color.r = 1;
+    walls.color.b = 0;
+    walls.color.g = 0;
+    walls.color.a = 1;
         //scale
-        walls.scale.x = side ? xlen + 2 * wall_thickness : wall_thickness;
-        walls.scale.y = side ? wall_thickness : ylen;
-        walls.scale.z = .25;
+    walls.scale.x = side ? xlen + 2 * wall_thickness : wall_thickness;
+    walls.scale.y = side ? wall_thickness : ylen;
+    walls.scale.z = .25;
         //position
-        auto wallpoint1 = geometry_msgs::msg::Point();
-        wallpoint1.x = side ? 0 : wall_thickness/2 + ylen/2;
-        wallpoint1.y = side ? wall_thickness/2 + ylen/2 : 0;
-        auto wallpoint2 = geometry_msgs::msg::Point();
-        wallpoint2.x = side ? 0 : -(wall_thickness/2 + ylen/2);
-        wallpoint2.y = side ? -(wall_thickness/2 + ylen/2) : 0;
-        walls.points.emplace_back(wallpoint1);
-        walls.points.emplace_back(wallpoint2);
+    auto wallpoint1 = geometry_msgs::msg::Point();
+    wallpoint1.x = side ? 0 : wall_thickness / 2 + ylen / 2;
+    wallpoint1.y = side ? wall_thickness / 2 + ylen / 2 : 0;
+    auto wallpoint2 = geometry_msgs::msg::Point();
+    wallpoint2.x = side ? 0 : -(wall_thickness / 2 + ylen / 2);
+    wallpoint2.y = side ? -(wall_thickness / 2 + ylen / 2) : 0;
+    walls.points.emplace_back(wallpoint1);
+    walls.points.emplace_back(wallpoint2);
 
-        return walls;
-    }
+    return walls;
+  }
 };
 
 int main(int argc, char * argv[])
