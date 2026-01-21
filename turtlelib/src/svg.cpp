@@ -68,9 +68,6 @@ void turtlelib::Svg::addVector(Vector2D newvec, std::string color, unsigned int 
 
 void turtlelib::Svg::addFrame(Transform2D frame, std::string name, unsigned int frameID){
     dispFrame newframe = dispFrame();
-    Vector2D offset = frame.translation();
-    offset.y *= -1;
-    frame.setoffset(offset);
 
     if(frameID != 0){
         if(frameID >= frames.size()) {
@@ -92,39 +89,35 @@ void turtlelib::Svg::drawFrame(dispFrame frame){
 
     Point2D origin = drawtrans(Point2D(0,0));
     Point2D xhead = drawtrans(Point2D(1,0));
-    Point2D yhead = drawtrans(Point2D(0,-1));
+    Point2D yhead = drawtrans(Point2D(0,1));
 
     svgfile << "<g>";
 
     svgfile << std::format(
         "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"red\" stroke-width=\"2\" marker-start=\"url(#Arrow1Sstart)\"/>",
-        xhead.x * dpi, xhead.y * dpi, origin.x * dpi, origin.y * dpi);
+        xhead.x * dpi, getYPos(xhead.y), origin.x * dpi, getYPos(origin.y));
 
     svgfile << std::format(
         "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"green\" stroke-width=\"2\" marker-start=\"url(#Arrow1Sstart)\"/>",
-        yhead.x * dpi, yhead.y * dpi, origin.x * dpi, origin.y * dpi);
+        yhead.x * dpi, getYPos(yhead.y), origin.x * dpi, getYPos(origin.y));
     
     svgfile << std::format(
         "<text x=\"{}\" y=\"{}\" fill=\"black\" font-size=\"12\">{{{}}}</text>",
-        origin.x * dpi + 5, origin.y * dpi - 5, frame.name);
+        origin.x * dpi + 5, getYPos(origin.y + .1), frame.name);
 
     svgfile << "</g>";
 }
 
 void turtlelib::Svg::drawPoint(dispPoint point){
-    point.point.y *= -1;
-    
     Transform2D drawtrans = CenterOfPage * frames.at(point.frameID).transform;
 
     Point2D cpoint = drawtrans(point.point);
 
     svgfile << std::format("<circle cx=\"{}\" cy=\"{}\" r=\"3\" stroke=\"{}\" fill=\"{}\" stroke-width=\"1\"/>", 
-        cpoint.x * dpi, cpoint.y * dpi, point.color, point.color);
+        cpoint.x * dpi, getYPos(cpoint.y), point.color, point.color);
 }
 
 void turtlelib::Svg::drawVector(dispVec vector){
-    vector.vector.y *= -1;
-    
     Transform2D drawtrans = CenterOfPage * frames.at(vector.frameID).transform;
 
     Point2D tail = drawtrans(Point2D(0,0));
@@ -132,5 +125,9 @@ void turtlelib::Svg::drawVector(dispVec vector){
 
     svgfile << std::format(
         "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"{}\" stroke-width=\"2\" marker-start=\"url(#Arrow1Sstart)\"/>",
-        head.x * dpi, head.y * dpi, tail.x * dpi, tail.y * dpi, vector.color);
+        head.x * dpi, getYPos(head.y), tail.x * dpi, getYPos(tail.y), vector.color);
+}
+
+float turtlelib::Svg::getYPos(float yinch){
+    return (ysize - yinch) * dpi;
 }

@@ -1,0 +1,15 @@
+Enter two transforms in the format {theta, x, y}
+after tab: fail=0
+Transform A to B: {1, 1, 1}
+Transform B to A: {-1, -1.3817732906760363, 0.30116867893975674}
+Transform B to C: {0, 1, 1}
+Transform C to B: {-0, -1, -1}
+Enter a point in frame A (format: (x, y) or x y): 
+Point in frame A: (2, 1)
+Point in frame B: (0.5403023058681398, -0.8414709848078965)
+Point in frame C: (-0.45969769413186023, -1.8414709848078965)
+Enter a vector in frame B (format: [x, y] or x y): 
+Vector in frame B: [-1, 1]
+Normalized vector in frame B: [-0.5773502588272095, 0.5773502588272095]
+Vector in frame A: [-1.3817732906760363, -0.30116867893975674]
+Vector in frame C: [-1, 1]

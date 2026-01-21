@@ -73,5 +73,10 @@ namespace turtlelib{
         void drawPoint(dispPoint point);
 
         void drawVector(dispVec vector);
+
+        /// @brief 
+        /// @param yinch 
+        /// @return 
+        float getYPos(float yinch);
     };
 }

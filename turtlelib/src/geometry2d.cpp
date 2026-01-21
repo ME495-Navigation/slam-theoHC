@@ -99,7 +99,9 @@ namespace turtlelib{
     }
 
     Vector2D Vector2D::operator=(const Point2D & in){
-        return Vector2D(in.x, in.y);
+        x = in.x;
+        y = in.y;
+        return *this;
     }
 
     Point2D Point2D::operator=(const Vector2D & in){

@@ -18,8 +18,8 @@ int main(){
     turtlelib::Point2D pa;
     std::cin >> pa;
 
-    turtlelib::Point2D pb = tab(pa);
-    turtlelib::Point2D pc = tbc(pb);
+    turtlelib::Point2D pb = tab.inv()(pa);
+    turtlelib::Point2D pc = tbc.inv()(pb);
 
     std::cout << std::format("Point in frame A: {}", pa) << "\n";
     std::cout << std::format("Point in frame B: {}", pb) << "\n";
@@ -32,8 +32,8 @@ int main(){
     std::cout << std::format("Vector in frame B: {}", vb) << "\n";
     turtlelib::Vector2D vbhat = turtlelib::normalize(vb);
     std::cout << std::format("Normalized vector in frame B: {}", vbhat) << "\n";
-    turtlelib::Vector2D va = tab.inv()(vb);
-    turtlelib::Vector2D vc = tbc(vb);
+    turtlelib::Vector2D va = tab(vb);
+    turtlelib::Vector2D vc = tbc.inv()(vb);
     std::cout << std::format("Vector in frame A: {}", va) << "\n";
     std::cout << std::format("Vector in frame C: {}", vc) << "\n";
 
@@ -50,5 +50,5 @@ int main(){
     svgvis.addVector(vbhat, "brown", 1);
     svgvis.addVector(vc, "orange", 2);
 
-    svgvis.write("exercises/B6_frame_input.svg");
+    svgvis.write("exercises/B6_frames.svg");
 }
