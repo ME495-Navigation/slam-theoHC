@@ -117,8 +117,6 @@ namespace turtlelib
 
 }
 
-#define FORMAT_COMMA out = std::format_to(out, ", ");
-
 /// \brief print the Twist2D as "<w [<unit>], x, y>"
 /// An R at the beginning of the format-spec makes [<unit>] rad/s
 /// A  D at the beginning of the format-spec makes [<unit>] deg/s
@@ -138,8 +136,8 @@ class std::formatter<turtlelib::Twist2D, CharT> : public std::formatter<double, 
         auto it = ctx.begin();
 
         if(it != ctx.end() && (*it == CharT('D') || *it == CharT('R'))){
-            if(*it == CharT('D')) option = 'D';
-            if(*it == CharT('R')) option = 'R';
+            if(*it == CharT('D')) {option = 'D';}
+            if(*it == CharT('R')) {option = 'R';}
 
             it++;
         }
@@ -164,11 +162,11 @@ class std::formatter<turtlelib::Twist2D, CharT> : public std::formatter<double, 
         }
         else{
             out = super::format(obj.omega, ctx);
-            FORMAT_COMMA
+            out = std::format_to(out, ", ");
         }
         
         out = super::format(obj.x, ctx);
-        FORMAT_COMMA
+        out = std::format_to(out, ", ");
         out = super::format(obj.y, ctx);
         out = std::format_to(out, ">");
 
@@ -210,11 +208,11 @@ class std::formatter<turtlelib::Transform2D, CharT> : public std::formatter<turt
         }
         else{
             out = super::format(obj.rotation(), ctx);
-            FORMAT_COMMA
+            out = std::format_to(out, ", ");
         }
         
         out = super::format(obj.translation().x, ctx);
-        FORMAT_COMMA
+        out = std::format_to(out, ", ");
         out = super::format(obj.translation().y, ctx);
         out = std::format_to(out, "}}");
 
