@@ -39,7 +39,7 @@ void turtlelib::Svg::write(std::string outputfilename){
 }
 
 void turtlelib::Svg::addPoint(Point2D newpoint, std::string color, unsigned int frameID){
-    if(frameID >= frames.size()) {
+    if(frameID >= frames.size() || frameID < 0) {
         return;
     }
 
@@ -53,7 +53,7 @@ void turtlelib::Svg::addPoint(Point2D newpoint, std::string color, unsigned int 
 }
 
 void turtlelib::Svg::addVector(Vector2D newvec, std::string color, unsigned int frameID){
-    if(frameID >= frames.size()) {
+    if(frameID >= frames.size() || frameID < 0) {
         return;
     }
 
@@ -73,7 +73,7 @@ void turtlelib::Svg::addFrame(Transform2D frame, std::string name, unsigned int 
     frame.setoffset(offset);
 
     if(frameID != 0){
-        if(frameID >= frames.size()) {
+        if(frameID >= frames.size() || frameID < 0) {
             return;
         }
         

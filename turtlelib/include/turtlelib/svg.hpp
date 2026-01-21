@@ -54,6 +54,7 @@ namespace turtlelib{
         /// @brief Add a frame object to the geometric representation
         /// @param transform The transform representing the frame, relative to the origin
         /// @param name the index of the frame in which this point is represented (e.g. 0 for the default origin, 1 for the first frame added).
+        /// @param frameID the index of the frame to which this frame is attached. 0 for the origin frame.
         void addFrame(Transform2D transform, std::string name, unsigned int frameID = 0);
 
         private:
