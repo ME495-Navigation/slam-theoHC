@@ -24,7 +24,14 @@ namespace turtlelib
         double y = 0.0;
 
         /// \brief allow us to make a point from a vector
+        /// \param in The vector to convert
+        /// \return The resulting point
         Point2D operator=(const Vector2D & in);
+
+        /// \brief in-place addition of a vector to a point
+        /// \param in The vector to add
+        /// \return The updated point
+        Point2D operator+=(const Vector2D & in);
     };
 
     /// \brief Input a 2 dimensional point
@@ -51,7 +58,24 @@ namespace turtlelib
         double y = 0.0;
 
         /// \brief allow us to make a vector from a point
+        /// \param in The point to convert
+        /// \return The resulting vector
         Vector2D operator=(const Point2D & in);
+
+        /// \brief in-place addition of another vector
+        /// \param in The vector to add
+        /// \return The updated vector
+        Vector2D operator+=(const Vector2D & in);
+
+        /// \brief in-place scalar multiplication
+        /// \param a The scalar to multiply by
+        /// \return The updated vector
+        Vector2D operator*=(const double & a);
+
+        /// \brief in-place vector subtraction
+        /// \param in The vector to subtract
+        /// \return The updated vector
+        Vector2D operator-=(const Vector2D & in);
     };
 
     /// \brief Subtracting one point from another yields a vector
@@ -68,17 +92,35 @@ namespace turtlelib
     /// \return The scaled vector
     Vector2D operator*(const double & a, const Vector2D & vec);
 
+    /// \brief Scalar multiplication of a vector
+    /// \param a Scalar multiple
+    /// \param vec Vector
+    /// \return The scaled vector
+    Vector2D operator*(const Vector2D & vec, const double & a);
+
     /// \brief Vector addition
     /// \param a First vector
     /// \param b Second vector
     /// \return The elementwise sum of a and b
     Vector2D operator+(const Vector2D & a, const Vector2D & b);
 
+    /// \brief Vector subtraction
+    /// \param a First vector
+    /// \param b Second vector
+    /// \return The elementwise difference of a and b
+    Vector2D operator-(const Vector2D & a, const Vector2D & b);
+
     /// \brief Vector inner product
     /// \param a First vector
     /// \param b Second vector
     /// \return The dot product of a and b
     double operator*(const Vector2D & a, const Vector2D & b);
+
+    /// \brief Vector inner product
+    /// \param a First vector
+    /// \param b Second vector
+    /// \return The dot product of a and b
+    double dot(const Vector2D & a, const Vector2D & b);
 
     /// \brief Vector equality
     /// \param a First vector
@@ -109,11 +151,22 @@ namespace turtlelib
     /// a parsing error occurs
     std::istream & operator>>(std::istream & is, Vector2D & v);
 
+    /// \brief Compute the magnitude of a vector
+    /// \param v The vector
+    /// \return The magnitude of the vector
+    double magnitude(const Vector2D & v);
+
     /// \brief Return a unit vector in the direction of v
     /// \param in The vector to normalize
     /// \return The normalized vector.
     /// \throws std::invalid_input if in is the zero vector
     Vector2D normalize(Vector2D in);
+
+    /// \brief Compute the angle between two vectors
+    /// \param a First vector
+    /// \param b Second vector
+    /// \return The angle between the two vectors in radians
+    double angle(const Vector2D & a, const Vector2D & b);
 }
 
 /// \brief A Formatter for 2D points

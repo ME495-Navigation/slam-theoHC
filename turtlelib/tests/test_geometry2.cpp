@@ -1,6 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <catch2/catch_approx.hpp>
 #include <turtlelib/geometry2d.hpp>
+#include <turtlelib/angle.hpp>
 #include <sstream>
 
 TEST_CASE("Points can be read from streams", "[operator>>]"){
@@ -89,4 +91,93 @@ TEST_CASE("Formatting a point to a string", "[Formatter]"){
     std::string outstr = std::format("Point: {}", testVec1);
 
     REQUIRE(outstr == "Point: (2, 0)");
+}
+
+TEST_CASE("Scalar multiplication of vectors", "[operator*]"){
+    turtlelib::Vector2D testVec1(1, 2);
+
+    turtlelib::Vector2D outVec = 3.0 * testVec1;
+
+    REQUIRE(outVec.x == 3.0);
+    REQUIRE(outVec.y == 6.0);
+
+    outVec = testVec1 * 4.0;
+
+    REQUIRE(outVec.x == 4.0);
+    REQUIRE(outVec.y == 8.0);
+}
+
+TEST_CASE("Dot product of vectors", "[operator*]"){
+    turtlelib::Vector2D vecA(1, 2);
+    turtlelib::Vector2D vecB(3, 4);
+
+    double dotprod = vecA * vecB;
+
+    REQUIRE(dotprod == Catch::Approx(11.0));
+}
+
+TEST_CASE("Angle between vectors", "[angle()]"){
+    turtlelib::Vector2D vecA(1, 0);
+    turtlelib::Vector2D vecB(1, 1);
+    turtlelib::Vector2D vecC(0, 1);
+
+    double angleAB = turtlelib::angle(vecA, vecB);
+    double angleAC = turtlelib::angle(vecA, vecC);
+
+    REQUIRE(angleAB == Catch::Approx(turtlelib::deg2rad(45.0)));
+    REQUIRE(angleAC == Catch::Approx(turtlelib::deg2rad(90.0)));
+}
+
+TEST_CASE("In-place operations on vectors", "[in-place operators]"){
+    turtlelib::Vector2D vecA(1, 2);
+    turtlelib::Vector2D vecB(3, 4);
+
+    vecA += vecB;
+
+    REQUIRE(vecA.x == 4.0);
+    REQUIRE(vecA.y == 6.0);
+
+    vecA *= 2.0;
+
+    REQUIRE(vecA.x == 8.0);
+    REQUIRE(vecA.y == 12.0);
+
+    vecA -= vecB;
+
+    REQUIRE(vecA.x == 5.0);
+    REQUIRE(vecA.y == 8.0);
+}
+
+TEST_CASE("Add vector to point in-place", "[in-place operators]"){
+    turtlelib::Point2D pointA(1, 2);
+    turtlelib::Vector2D vecA(3, 4);
+
+    pointA += vecA;
+
+    REQUIRE(pointA.x == 4.0);
+    REQUIRE(pointA.y == 6.0);
+}
+
+TEST_CASE("Conversion between Point2D and Vector2D", "[conversion operators]"){
+    turtlelib::Point2D pointA(1, 2);
+
+    turtlelib::Vector2D vecA;
+    vecA = pointA;
+
+    REQUIRE(vecA.x == 1.0);
+    REQUIRE(vecA.y == 2.0);
+
+    turtlelib::Point2D pointB;
+    pointB = vecA;
+
+    REQUIRE(pointB.x == 1.0);
+    REQUIRE(pointB.y == 2.0);
+}
+
+TEST_CASE("Magnitude of a vector", "[magnitude()]"){
+    turtlelib::Vector2D vecA(3, 4);
+
+    double mag = turtlelib::magnitude(vecA);
+
+    REQUIRE(mag == Catch::Approx(5.0));
 }

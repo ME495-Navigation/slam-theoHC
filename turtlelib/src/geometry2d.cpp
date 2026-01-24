@@ -49,6 +49,10 @@ namespace turtlelib{
         return outvec;
     }
 
+    Vector2D operator-(const Vector2D & a, const Vector2D & b){
+        return a + (-1 * b);
+    }
+
     Point2D operator+(const Point2D & tail, const Vector2D & disp){
         Point2D outpoint;
 
@@ -74,7 +78,7 @@ namespace turtlelib{
     }
 
     Vector2D normalize(Vector2D in){
-        float len = std::pow(in * in, 0.5);
+        float len = magnitude(in);
         
         in.x *= 1/len;
         in.y *= 1/len;
@@ -86,12 +90,16 @@ namespace turtlelib{
         return Vector2D(a * vec.x, a * vec.y);
     }
 
+    Vector2D operator*(const Vector2D & vec, const double & a){
+        return a * vec;
+    }
+
     Vector2D operator+(const Vector2D & a, const Vector2D & b){
         return Vector2D(a.x + b.x, a.y + b.y);
     }
 
     double operator*(const Vector2D & a, const Vector2D & b){
-        return a.x * b.x + a.y + b.y;
+        return a.x * b.x + a.y * b.y;
     }
 
     bool operator==(const Vector2D & a, const Vector2D & b){
@@ -105,6 +113,47 @@ namespace turtlelib{
     }
 
     Point2D Point2D::operator=(const Vector2D & in){
-        return Point2D(in.x, in.y);
+        x = in.x;
+        y = in.y;
+        return *this;
+    }
+
+    Point2D Point2D::operator+=(const Vector2D & in){
+        x += in.x;
+        y += in.y;
+        return *this;
+    }
+
+    Vector2D Vector2D::operator+=(const Vector2D & in){
+        x += in.x;
+        y += in.y;
+        return *this;
+    }
+
+    Vector2D Vector2D::operator*=(const double & a){
+        x *= a;
+        y *= a;
+        return *this;
+    };
+
+    Vector2D Vector2D::operator-=(const Vector2D & in){
+        x -= in.x;
+        y -= in.y;
+        return *this;
+    }
+
+    double angle(const Vector2D & a, const Vector2D & b){
+        double dotprod = dot(a, b);
+        double mags = magnitude(a) * magnitude(b);
+
+        return std::acos(dotprod / mags);
+    }
+
+    double magnitude(const Vector2D & v){
+        return std::pow(v * v, 0.5);
+    }
+
+    double dot(const Vector2D & a, const Vector2D & b){
+        return a * b;
     }
 }
