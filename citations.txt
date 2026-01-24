@@ -23,3 +23,5 @@ Citation 10: Xacro color setup from Amber
 Citation 11: contents from Kyle
 
 Citation 12: proper setup of the namespace from Kyle
+
+Citation 13: Twist integration from ChatGPT

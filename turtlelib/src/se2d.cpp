@@ -119,6 +119,11 @@ Transform2D::Transform2D(Vector2D trans, double radians){
     rot = radians;
 }
 
+Transform2D::Transform2D(double radians, double x, double y){
+    offset = Vector2D(x, y);
+    rot = radians;
+}
+
 Point2D Transform2D::operator()(Point2D p) const{
     Point2D out;
 
@@ -162,4 +167,45 @@ Transform2D & Transform2D::operator*=(const Transform2D & rhs){
 
     return *this;
 }
+
+Twist2D Twist2D::operator*=(const double & a){
+    omega *= a;
+    x *= a;
+    y *= a;
+
+    return *this;
 }
+
+Twist2D operator*(const double & a, const Twist2D & tw){
+    Twist2D out = tw;
+    out *= a;
+    return out;
+}
+
+Twist2D operator*(const Twist2D & tw, const double & a){
+    return a * tw;
+}
+
+
+Transform2D integrate_twist(const Twist2D & tw){
+    const double w = tw.omega;
+
+    // Near-zero rotation: pure translation
+    if (std::abs(w) < 1e-9)
+    {
+        return Transform2D(0.0, tw.x, tw.y);
+    }
+
+    const double sinw = std::sin(w);
+    const double cosw = std::cos(w);
+
+    const double x =
+        ( tw.x * sinw + tw.y * (1.0 - cosw) ) / w;
+
+    const double y =
+        ( tw.y * sinw - tw.x * (1.0 - cosw) ) / w;
+
+    return Transform2D(w, x, y);
+}
+
+} // namespace turtlelib

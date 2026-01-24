@@ -23,8 +23,24 @@ namespace turtlelib
 
         /// \brief the linear y velocity
         double y = 0.0;
+
+        /// \brief in-place scalar multiplication
+        /// \param a The scalar to multiply by
+        /// \return The updated twist
+        Twist2D operator*=(const double & a);
     };
 
+    /// \brief Scalar multiplication of a twist
+    /// \param a Scalar multiple
+    /// \param tw Twist
+    /// \return The scaled twist
+    Twist2D operator*(const double & a, const Twist2D & tw);
+
+    /// \brief Scalar multiplication of a twist
+    /// \param a Scalar multiple
+    /// \param tw Twist
+    /// \return The scaled twist
+    Twist2D operator*(const Twist2D & tw, const double & a);
 
     /// \brief read the Twist2D in the format "<w [<unit>], x, y>" or as "w [<unit>] x y"
     /// The "" are not part of the input.
@@ -57,6 +73,8 @@ namespace turtlelib
         /// \param trans - the translation
         /// \param radians - the rotation, in radians
         Transform2D(Vector2D trans, double radians);
+
+        Transform2D(double radians, double x, double y);
 
         /// \brief apply a transformation to a 2D Point
         /// \param p the point to transform
