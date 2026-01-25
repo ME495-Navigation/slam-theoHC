@@ -133,6 +133,8 @@ namespace turtlelib
     /// HINT: This function should be implemented in terms of *=
     inline Transform2D operator*(Transform2D lhs, const Transform2D & rhs){return lhs *= rhs;}
 
+    Transform2D integrate_twist(const Twist2D & tw);
+
 }
 
 /// \brief print the Twist2D as "<w [<unit>], x, y>"

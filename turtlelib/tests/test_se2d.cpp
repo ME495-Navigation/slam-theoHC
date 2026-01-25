@@ -348,3 +348,53 @@ TEST_CASE("Transform setters", "[transform]") // Theo, Coulson
     REQUIRE(tf1.rotation() == Catch::Approx(4));
     REQUIRE(tf1.translation() == turtlelib::Vector2D(5,6));
 }
+
+TEST_CASE("Integrate linear twist", "[transform]")
+{
+    turtlelib::Twist2D tw = {0.0, 1.0, 0.0}; // Pure linear twist along x-axis
+
+    // Expected result is a translation of (2.0, 0.0) with no rotation
+    turtlelib::Transform2D expected_tf(turtlelib::Vector2D(1.0, 0.0), 0.0);
+
+    // Integrate the twist
+    turtlelib::Transform2D result_tf = integrate_twist(tw);
+
+    REQUIRE(result_tf.rotation() == Catch::Approx(expected_tf.rotation()));
+    REQUIRE(result_tf.translation().x == Catch::Approx(expected_tf.translation().x));
+    REQUIRE(result_tf.translation().y == Catch::Approx(expected_tf.translation().y));
+}
+
+TEST_CASE("Integrate rotational twist", "[transform]")
+{
+    turtlelib::Twist2D tw = {turtlelib::deg2rad(90.0), 0.0, 0.0}; // Pure rotational twist
+
+    // Expected result is a rotation of 90 degrees (pi/2 radians) with no translation
+    turtlelib::Transform2D expected_tf(turtlelib::deg2rad(90.0), 0.0, 0.0);
+
+    // Integrate the twist
+    turtlelib::Transform2D result_tf = integrate_twist(tw);
+
+    REQUIRE(result_tf.rotation() == Catch::Approx(expected_tf.rotation()));
+    REQUIRE(result_tf.translation().x == Catch::Approx(expected_tf.translation().x));
+    REQUIRE(result_tf.translation().y == Catch::Approx(expected_tf.translation().y));
+}
+
+TEST_CASE("Integrate general twist", "[transform]")
+{
+    turtlelib::Twist2D tw = {turtlelib::deg2rad(45.0), 1.0, 1.0}; // General twist
+
+    // Expected result is a combination of rotation and translation
+    double theta = turtlelib::deg2rad(45.0);
+    double sin_theta = std::sin(theta);
+    double cos_theta = std::cos(theta);
+    double x = (tw.x * sin_theta + tw.y * (1 - cos_theta)) / tw.omega;
+    double y = (tw.y * sin_theta - tw.x * (1 - cos_theta)) / tw.omega;
+    turtlelib::Transform2D expected_tf(turtlelib::Vector2D(x, y), theta);
+
+    // Integrate the twist
+    turtlelib::Transform2D result_tf = integrate_twist(tw);
+
+    REQUIRE(result_tf.rotation() == Catch::Approx(expected_tf.rotation()));
+    REQUIRE(result_tf.translation().x == Catch::Approx(expected_tf.translation().x));
+    REQUIRE(result_tf.translation().y == Catch::Approx(expected_tf.translation().y));
+}

@@ -7,6 +7,7 @@ add_library(turtlelib
   src/geometry2d.cpp
   src/se2d.cpp
   src/svg.cpp
+  src/diff_drive.cpp
 )
 
 add_executable(converter src/converter.cpp)

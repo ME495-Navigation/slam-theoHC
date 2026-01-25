@@ -186,7 +186,7 @@ Twist2D operator*(const Twist2D & tw, const double & a){
     return a * tw;
 }
 
-
+//####### begin_citation [13] #######
 Transform2D integrate_twist(const Twist2D & tw){
     const double w = tw.omega;
 
@@ -207,5 +207,6 @@ Transform2D integrate_twist(const Twist2D & tw){
 
     return Transform2D(w, x, y);
 }
+//####### end_citation [13] #######
 
 } // namespace turtlelib
