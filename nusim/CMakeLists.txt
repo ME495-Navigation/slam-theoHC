@@ -16,6 +16,7 @@ find_package(tf2_ros)
 find_package(tf2)
 
 add_executable(nusimulator src/nusim.cpp)
+target_include_directories(nusimulator PRIVATE include)
 target_link_libraries(
   nusimulator PRIVATE
   rclcpp::rclcpp
