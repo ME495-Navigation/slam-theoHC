@@ -1,0 +1,9 @@
+repositories:
+  nuturtlebot_msgs:
+    type: git
+    url: git@github.com:NU-MSR/nuturtlebot_msgs.git
+    version: ros2
+  slam-theoHC:
+    type: git
+    url: git@github.com:ME495-Navigation/slam-theoHC.git
+    version: hw2
