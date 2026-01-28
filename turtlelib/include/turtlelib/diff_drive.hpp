@@ -30,7 +30,7 @@ namespace turtlelib{
         Transform2D get_pose() const;
 
         /// \brief Set the robot's pose
-        /// \param new_pose - the new Transform2D to set as the robot's pose
+        /// \param new_pose - the new Transform2D to set as the robot's pose. Does not update wheel state.
         void set_pose(const Transform2D & new_pose);
 
     private:

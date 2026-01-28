@@ -4,11 +4,13 @@
 namespace turtlelib{
 
     turtlelib::DiffDrive::DiffDrive(double wheel_radius, double wheel_base)
+    // ######### begin_citation[14] #########
         : wheel1_angle(0.0),
       wheel2_angle(0.0),
       pose(),
       wheel_radius(wheel_radius),
       wheel_base(wheel_base)  // Initializes to identity Transform2D
+    // ######### end_citation[14] #########
         {
     }
 
