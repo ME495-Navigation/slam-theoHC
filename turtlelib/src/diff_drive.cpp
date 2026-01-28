@@ -4,17 +4,18 @@
 namespace turtlelib{
 
     turtlelib::DiffDrive::DiffDrive(double wheel_radius, double wheel_base)
-        : wheel_radius(wheel_radius),
-        wheel_base(wheel_base),
-        wheel1_angle(0.0),
-        wheel2_angle(0.0),
-        pose()  // Initializes to identity Transform2D
+        : wheel1_angle(0.0),
+      wheel2_angle(0.0),
+      pose(),
+      wheel_radius(wheel_radius),
+      wheel_base(wheel_base)  // Initializes to identity Transform2D
         {
     }
 
 
-    void turtlelib::DiffDrive::forwardK(double new_wheel1, double new_wheel2){
-    }
+    // void turtlelib::DiffDrive::forwardK(double new_wheel1, double new_wheel2){
+    // }
+
 
     Vector2D DiffDrive::inverseK(const Twist2D vel) const{
         if(vel.y != 0){

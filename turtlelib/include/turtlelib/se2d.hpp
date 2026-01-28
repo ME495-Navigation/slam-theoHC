@@ -24,6 +24,12 @@ namespace turtlelib
         /// \brief the linear y velocity
         double y = 0.0;
 
+        /// \brief Construct a Twist2D
+        /// \param omega The angular velocity
+        /// \param x The linear x velocity
+        /// \param y The linear y velocity
+        Twist2D(double omega = 0.0, double x = 0.0, double y = 0.0) : omega(omega), x(x), y(y) {}
+
         /// \brief in-place scalar multiplication
         /// \param a The scalar to multiply by
         /// \return The updated twist
