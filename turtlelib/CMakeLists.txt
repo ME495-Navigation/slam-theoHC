@@ -41,7 +41,7 @@ install(EXPORT ${PROJECT_NAME}-targets
 find_package(Doxygen)
 find_package(Catch2 3 REQUIRED)
 
-add_executable(tests tests/test_geometry2.cpp tests/test_se2d.cpp)
+add_executable(tests tests/test_geometry2d.cpp tests/test_se2d.cpp tests/test_diff_drive.cpp)
 target_link_libraries(tests PRIVATE turtlelib Catch2::Catch2WithMain)
 
 # Building documentation should be optional.

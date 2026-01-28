@@ -2,6 +2,7 @@
 #include <catch2/catch_approx.hpp>
 #include <turtlelib/se2d.hpp>
 #include <turtlelib/angle.hpp>
+#include <sstream>
 
 TEST_CASE("Twist2D input with brackets", "[twist]") // Gregory, Aiosa
 {
