@@ -12,6 +12,13 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <!-- &&&&&& begin_citation[18] &&&&&& -->
+  <depend>nuturtlebot_msgs</depend>
+  <!-- &&&&&& end_citation[18] &&&&&& -->
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
