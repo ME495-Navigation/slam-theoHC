@@ -10,6 +10,29 @@ namespace turtlelib{
     class DiffDrive{
     public:
         
+        /// \brief Construct a DiffDrive object
+        /// \param wheel_radius - radius of the wheels
+        /// \param wheel_base - distance between the wheels
+        DiffDrive(double wheel_radius, double wheel_base);
+
+        /// \brief Update the robot's pose based on wheel movements
+        /// \param new_wheel1 - change in angle of wheel 1 (radians)
+        /// \param new_wheel2 - change in angle of wheel 2 (radians)
+        void forwardK(double new_wheel1, double new_wheel2);
+
+        /// \brief Compute wheel velocities from a given body twist
+        /// \param vel - the desired body twist
+        /// \return a Vector2D where x is wheel 1 velocity and y is wheel 2 velocity (in rad/s)
+        Vector2D inverseK(const Twist2D vel) const;
+
+        /// \brief Get the current pose of the robot
+        /// \return the current Transform2D representing the robot's pose
+        Transform2D get_pose() const;
+
+        /// \brief Set the robot's pose
+        /// \param new_pose - the new Transform2D to set as the robot's pose
+        void set_pose(const Transform2D & new_pose);
+
     private:
         Transform2D pose;
         double wheel_radius;

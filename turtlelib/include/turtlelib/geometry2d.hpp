@@ -23,6 +23,11 @@ namespace turtlelib
         /// \brief the y coordinate
         double y = 0.0;
 
+        /// \brief Construct a Point2D
+        /// \param x - x coordinate
+        /// \param y - y coordinate
+        Point2D(double x = 0.0, double y = 0.0) : x(x), y(y) {}
+
         /// \brief allow us to make a point from a vector
         /// \param in The vector to convert
         /// \return The resulting point
@@ -56,6 +61,11 @@ namespace turtlelib
 
         /// \brief the y coordinate
         double y = 0.0;
+
+        /// \brief Construct a Vector2D
+        /// \param x The x component
+        /// \param y The y component
+        Vector2D(double x = 0.0, double y = 0.0) : x(x), y(y) {}
 
         /// \brief allow us to make a vector from a point
         /// \param in The point to convert
