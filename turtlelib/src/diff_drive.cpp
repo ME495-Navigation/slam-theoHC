@@ -14,10 +14,19 @@ namespace turtlelib{
         {
     }
 
+    void turtlelib::DiffDrive::forwardK(double new_wheel1, double new_wheel2){
+        double wheel1_diff = normalize_angle(new_wheel1 - wheel1_angle);
+        double wheel2_diff = normalize_angle(new_wheel2 - wheel2_angle);
 
-    // void turtlelib::DiffDrive::forwardK(double new_wheel1, double new_wheel2){
-    // }
-
+        // ######### begin_citation[15] #########
+        double dtheta = (wheel_radius / wheel_base) * (wheel2_diff - wheel1_diff);
+        double dx = (wheel_radius / 2.0) * (wheel1_diff + wheel2_diff);
+        // ######### begin_citation[15] #########
+        double dy = 0.0;
+        Twist2D body_twist(dtheta, dx, dy);
+        Transform2D delta_transform = integrate_twist(body_twist);
+        pose *= delta_transform;
+    }
 
     Vector2D DiffDrive::inverseK(const Twist2D vel) const{
         if(vel.y != 0){
