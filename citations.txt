@@ -39,3 +39,7 @@ Citation 17: I used Claude Haiku 4.5 to refactor my nusimulator node, separating
 Citation 18: Claude Haiku 4.5 reminded me that I need to include dependencies in package.xml 
 
 Citation 19: Claude Haiku 4.5 caught a -/_ confusion in my nuturtle_control path [There isn't an inline citation since the fix was renaming a directory]
+
+Citation 20: Claude Haiku 4.5 indicated that turtlelib had to be referred to as turtlelib::turtlelib when included in other CMakeLists.
+
+Citation 21: Claude Haiku 4.5 reccomended adding a default constructor to diff_drive to make using it easier.

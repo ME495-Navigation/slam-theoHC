@@ -9,7 +9,9 @@ namespace turtlelib{
 
     class DiffDrive{
     public:
-        
+        /// \brief Default constructor for DiffDrive
+        DiffDrive() = default;  
+
         /// \brief Construct a DiffDrive object
         /// \param wheel_radius - radius of the wheels
         /// \param wheel_base - distance between the wheels

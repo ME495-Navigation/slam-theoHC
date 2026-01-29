@@ -18,6 +18,7 @@
   <!-- &&&&&& begin_citation[18] &&&&&& -->
   <depend>nuturtlebot_msgs</depend>
   <!-- &&&&&& end_citation[18] &&&&&& -->
+  <depend>turtlelib</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

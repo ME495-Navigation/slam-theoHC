@@ -14,12 +14,15 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nuturtlebot_msgs REQUIRED)
+find_package(turtlelib REQUIRED)
 
 add_executable(turtle_control src/turtle_control.cpp)
 target_include_directories(turtle_control PRIVATE include)
 
 target_link_libraries(
   turtle_control PRIVATE
+  # 
+  turtlelib::turtlelib
   rclcpp::rclcpp
   ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
