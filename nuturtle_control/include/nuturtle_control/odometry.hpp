@@ -18,6 +18,9 @@ class odometry : public rclcpp::Node{
         rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPub;
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
 
+        // //service called initposeserv taking a transformstamped request and empty response
+        // rclcpp::Service<>::SharedPtr initPoseServ;
+
         void odomCallback(const sensor_msgs::msg::JointState msg);
 
         turtlelib::DiffDrive robotState;

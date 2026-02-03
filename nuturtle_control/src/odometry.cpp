@@ -59,4 +59,17 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg){
     tf2::Quaternion q;
     q.setRPY(0, 0, theta);
     t.transform.rotation = tf2::toMsg(q);
+
+    tf_broadcaster->sendTransform(t);
+
+    //Publish Odometry Message
+    nav_msgs::msg::Odometry odomMsg;
+    odomMsg.header.stamp = t.header.stamp;
+    odomMsg.header.frame_id = get_parameter("odom_id").as_string();
+    odomMsg.child_frame_id = get_parameter("body_id").as_string();
+    odomMsg.pose.pose.position.x = pose.translation().x;
+    odomMsg.pose.pose.position.y = pose.translation().y;
+    odomMsg.pose.pose.position.z = 0.0;
+    odomMsg.pose.pose.orientation = tf2::toMsg(q);
+    odomPub->publish(odomMsg);
 }
