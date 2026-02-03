@@ -18,8 +18,8 @@ namespace turtlelib{
         DiffDrive(double wheel_radius, double wheel_base);
 
         /// \brief Update the robot's pose based on wheel movements
-        /// \param new_wheel1 - change in angle of wheel 1 (radians)
-        /// \param new_wheel2 - change in angle of wheel 2 (radians)
+        /// \param new_wheel1 - new angle of wheel 1 (radians)
+        /// \param new_wheel2 - new angle of wheel 2 (radians)
         void forwardK(double new_wheel1, double new_wheel2);
 
         /// \brief Compute wheel velocities from a given body twist
@@ -34,6 +34,11 @@ namespace turtlelib{
         /// \brief Set the robot's pose
         /// \param new_pose - the new Transform2D to set as the robot's pose. Does not update wheel state.
         void set_pose(const Transform2D & new_pose);
+
+        /// \brief Set the wheel angles
+        /// \param wheel1 - angle of wheel 1 (radians)
+        /// \param wheel2 - angle of wheel 2 (radians)
+        void set_wheels(double wheel1, double wheel2);
 
     private:
         double wheel1_angle;

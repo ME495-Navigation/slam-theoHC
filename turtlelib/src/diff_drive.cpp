@@ -21,7 +21,7 @@ namespace turtlelib{
         // ######### begin_citation[15] #########
         double dtheta = (wheel_radius / wheel_base) * (wheel2_diff - wheel1_diff);
         double dx = (wheel_radius / 2.0) * (wheel1_diff + wheel2_diff);
-        // ######### begin_citation[15] #########
+        // ######### end_citation[15] #########
         double dy = 0.0;
         Twist2D body_twist(dtheta, dx, dy);
         Transform2D delta_transform = integrate_twist(body_twist);
@@ -45,4 +45,8 @@ namespace turtlelib{
         pose = new_pose;
     }
 
+    void turtlelib::DiffDrive::set_wheels(double wheel1, double wheel2){
+        wheel1_angle = wheel1;
+        wheel2_angle = wheel2;
+    }
 }

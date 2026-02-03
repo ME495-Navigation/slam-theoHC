@@ -57,8 +57,8 @@ void turtle_control::sensorDataCallback(const nuturtlebot_msgs::msg::SensorData:
 
   int ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_int();
 
-  jointStateMsg.name = {"left_wheel_joint", "right_wheel_joint"};
-  jointStateMsg.position = {(double)msg->left_encoder / (double)ticks_per_rad, 0.0};     //publishing 0 for now since I don't know the tick-radian conversion
+  jointStateMsg.name = {"wheel_left_link", "wheel_right_link"};
+  jointStateMsg.position = {(double)msg->left_encoder / (double)ticks_per_rad, (double)msg->right_encoder / (double)ticks_per_rad};     //publishing 0 for now since I don't know the tick-radian conversion
 
   jointStateMsg.header.stamp = this->now();
 

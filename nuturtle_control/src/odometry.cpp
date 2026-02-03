@@ -1,0 +1,62 @@
+#include <nuturtle_control/odometry.hpp>
+#include <string>
+#include "tf2/LinearMath/Quaternion.hpp"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+
+odometry::odometry() : Node("odometry"){
+    declare_parameter<std::string>("body_id", "base_footprint");
+    declare_parameter<std::string>("odom_id", "odom");
+    declare_parameter<std::string>("wheel_left");
+    declare_parameter<std::string>("wheel_right");
+    declare_parameter<double>("wheel_radius");
+    declare_parameter<double>("track_width");
+
+    rclcpp::Parameter filler_param;
+    if(!(get_parameter("wheel_left", filler_param) &&
+      get_parameter("wheel_right", filler_param) &&
+      get_parameter("wheel_radius", filler_param) &&
+      get_parameter("track_width", filler_param)))
+    {
+      RCLCPP_ERROR(get_logger(), "Wheel link names and robot parameters must be set");
+      rclcpp::shutdown();
+    }
+
+    jsSub = this->create_subscription<sensor_msgs::msg::JointState>(
+                "~/joint_states", 10,
+                 std::bind(&odometry::odomCallback, this, std::placeholders::_1));
+
+    odomPub = this->create_publisher<nav_msgs::msg::Odometry>("~/odom", 10);
+
+    robotState = turtlelib::DiffDrive(get_parameter("wheel_radius").as_double(),
+                                      get_parameter("track_width").as_double());
+
+    tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+}
+
+void odometry::odomCallback(const sensor_msgs::msg::JointState msg){
+    
+    double left_wheel_pos = msg.position[0];
+    double right_wheel_pos = msg.position[1];
+
+    //Set the wheel positions if we haven't to avoid jumps on the first callback
+    if(!hasSetWheels){
+        robotState.set_wheels(left_wheel_pos, right_wheel_pos);
+        hasSetWheels = true;
+    }
+
+    robotState.forwardK(left_wheel_pos, right_wheel_pos);
+
+    //Publish TF
+    geometry_msgs::msg::TransformStamped t;
+    t.header.stamp = this->now();
+    t.header.frame_id = get_parameter("odom_id").as_string();
+    t.child_frame_id = get_parameter("body_id").as_string();
+    turtlelib::Transform2D pose = robotState.get_pose();
+    t.transform.translation.x = pose.translation().x;
+    t.transform.translation.y = pose.translation().y;
+    t.transform.translation.z = 0.0;
+    double theta = pose.rotation();
+    tf2::Quaternion q;
+    q.setRPY(0, 0, theta);
+    t.transform.rotation = tf2::toMsg(q);
+}

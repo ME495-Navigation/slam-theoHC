@@ -15,6 +15,7 @@ find_package(nuturtlebot_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 find_package(catch_ros2 REQUIRED)
 
@@ -27,6 +28,7 @@ target_link_libraries(
   rclcpp::rclcpp
   tf2::tf2
   tf2_ros::tf2_ros
+  tf2_geometry_msgs::tf2_geometry_msgs
   ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
   ${nuturtlebot_msgs_TARGETS}
