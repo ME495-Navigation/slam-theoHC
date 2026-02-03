@@ -7,7 +7,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -34,6 +33,10 @@ target_link_libraries(
   ${nav_msgs_TARGETS}
 )
 
+install(TARGETS
+  turtle_control
+  DESTINATION lib/${PROJECT_NAME})
+
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/)
@@ -55,6 +58,7 @@ if(BUILD_TESTING)
 
   target_link_libraries(turtle_control_test
     catch_ros2::catch_ros2_with_node_main
+    rclcpp::rclcpp
     ${geometry_msgs_TARGETS}
     ${nuturtlebot_msgs_TARGETS}
   )

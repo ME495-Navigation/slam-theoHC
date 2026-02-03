@@ -11,7 +11,7 @@
 // class odometry : public rclcpp::Node{
 //     public:
 //         odometry();
-    
+
 //     private:
 //         rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr jsSub;
 //         rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPub;
