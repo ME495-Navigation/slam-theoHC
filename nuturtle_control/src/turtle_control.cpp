@@ -1,10 +1,20 @@
 #include <nuturtle_control/turtle_control.hpp>
 
 turtle_control::turtle_control(): Node("turtle_control"){
-	if(!(has_parameter("wheel_radius") && has_parameter("track_width"))){
+	declare_parameter<double>("wheel_radius");
+	declare_parameter<double>("track_width");
+	declare_parameter<double>("encoder_ticks_per_rad");
+
+	rclcpp::Parameter filler_param;
+
+	if(!(get_parameter("wheel_radius", filler_param) && 
+		get_parameter("track_width",filler_param) && 
+		get_parameter("encoder_ticks_per_rad", filler_param)))
+	{
 		RCLCPP_ERROR(get_logger(), "Parameters 'wheel_radius' and 'track_width' must be set");
 		rclcpp::shutdown();
 	}
+	
 	double radius = get_parameter("wheel_radius").as_double();
 	double track = get_parameter("track_width").as_double();
 
@@ -39,8 +49,10 @@ void turtle_control::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr m
 void turtle_control::sensorDataCallback(const nuturtlebot_msgs::msg::SensorData::SharedPtr msg){
 	sensor_msgs::msg::JointState jointStateMsg;
 
+	int ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_int();
+
 	jointStateMsg.name = {"left_wheel_joint", "right_wheel_joint"};
-	jointStateMsg.position = {msg->left_encoder * 2.0, 0.0}; //publishing 0 for now since I don't know the tick-radian conversion
+	jointStateMsg.position = {(double)msg->left_encoder/(double)ticks_per_rad, 0.0}; //publishing 0 for now since I don't know the tick-radian conversion
 
 	jointStateMsg.header.stamp = this->now();
 
