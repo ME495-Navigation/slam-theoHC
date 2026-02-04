@@ -31,6 +31,10 @@ odometry::odometry() : Node("odometry"){
                                       get_parameter("track_width").as_double());
 
     tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    initPoseServ = this->create_service<nuturtle_control::srv::OdomConfig>(
+        "~/initial_pose",
+        std::bind(&odometry::initPoseCallback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void odometry::odomCallback(const sensor_msgs::msg::JointState msg){
@@ -72,4 +76,9 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg){
     odomMsg.pose.pose.position.z = 0.0;
     odomMsg.pose.pose.orientation = tf2::toMsg(q);
     odomPub->publish(odomMsg);
+}
+
+void odometry::initPoseCallback(const std::shared_ptr<nuturtle_control::srv::OdomConfig::Request> request, std::shared_ptr<nuturtle_control::srv::OdomConfig::Response> response){
+    turtlelib::Transform2D new_pose(request->x, request->y, request->theta);
+    robotState.set_pose(new_pose);
 }

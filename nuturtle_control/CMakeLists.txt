@@ -17,6 +17,15 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
+find_package(rosidl_default_generators REQUIRED)
+
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/OdomConfig.srv"
+  "srv/TurtCircle.srv"
+)
+
+
 find_package(catch_ros2 REQUIRED)
 
 add_executable(turtle_control src/turtle_control.cpp)
@@ -65,13 +74,13 @@ if(BUILD_TESTING)
     ${nuturtlebot_msgs_TARGETS}
   )
 
-  install(DIRECTORY
-    test
+  install(FILES
+    test/turtle_control_test.launch.xml
     DESTINATION share/${PROJECT_NAME}
   )
 
   catch_ros2_add_integration_test(turtle_control_testXML
-    LAUNCH_FILE test/turtle_control_test.launch.xml
+    LAUNCH_FILE turtle_control_test.launch.xml
   )
 
 endif()
