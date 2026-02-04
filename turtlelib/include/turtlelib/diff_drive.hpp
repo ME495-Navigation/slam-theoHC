@@ -1,6 +1,7 @@
 #pragma once
 #include <turtlelib/geometry2d.hpp>
 #include <turtlelib/se2d.hpp>
+#include <chrono>
 
 /// \file
 /// \brief Differential Drive Kinematics
@@ -40,11 +41,17 @@ namespace turtlelib{
         /// \param wheel2 - angle of wheel 2 (radians)
         void set_wheels(double wheel1, double wheel2);
 
+        /// \brief Get the current body twist of the robot
+        /// \return the current Twist2D representing the robot's body twist, calculated during the last forwardK call. NOT scaled by time.
+        Twist2D get_twist() const {return twist;}
+
     private:
         double wheel1_angle;
         double wheel2_angle;
 
         Transform2D pose;
+        Twist2D twist;
+
         double wheel_radius;
         double wheel_base;
     };

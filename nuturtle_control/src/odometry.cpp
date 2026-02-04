@@ -66,6 +66,8 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg){
 
     tf_broadcaster->sendTransform(t);
 
+    turtlelib::Twist2D vel = robotState.get_twist();
+
     //Publish Odometry Message
     nav_msgs::msg::Odometry odomMsg;
     odomMsg.header.stamp = t.header.stamp;
@@ -75,6 +77,9 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg){
     odomMsg.pose.pose.position.y = pose.translation().y;
     odomMsg.pose.pose.position.z = 0.0;
     odomMsg.pose.pose.orientation = tf2::toMsg(q);
+    odomMsg.twist.twist.linear.x = vel.x;
+    odomMsg.twist.twist.linear.y = 0.0;
+    odomMsg.twist.twist.angular.z = vel.omega;
     odomPub->publish(odomMsg);
 }
 

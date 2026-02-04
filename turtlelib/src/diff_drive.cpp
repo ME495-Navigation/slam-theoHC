@@ -24,6 +24,7 @@ namespace turtlelib{
         // ######### end_citation[15] #########
         double dy = 0.0;
         Twist2D body_twist(dtheta, dx, dy);
+        twist = body_twist;
         Transform2D delta_transform = integrate_twist(body_twist);
         pose *= delta_transform;
     }
