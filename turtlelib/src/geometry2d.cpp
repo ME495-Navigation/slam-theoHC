@@ -41,7 +41,7 @@ namespace turtlelib{
     }
 
     Vector2D operator-(const Point2D & head, const Point2D & tail){
-        Vector2D outvec;
+        Vector2D outvec; // no need for the temporary Vector2D taht is being initialized, then re-initialized
 
         outvec.x = head.x - tail.x;
         outvec.y = head.y - tail.y;
@@ -74,16 +74,16 @@ namespace turtlelib{
     }
 
     Vector2D normalize(Vector2D in){
-        float len = std::pow(in * in, 0.5);
+        float len = std::pow(in * in, 0.5); // auto. This should be a double not a float!
         
-        in.x *= 1/len;
+        in.x *= 1/len; // /= is an operator also
         in.y *= 1/len;
 
         return in;
     }
     
     Vector2D operator*(const double & a, const Vector2D & vec){
-        return Vector2D(a * vec.x, a * vec.y);
+        return Vector2D(a * vec.x, a * vec.y); // Vector2D unnecessar can just {,}
     }
 
     Vector2D operator+(const Vector2D & a, const Vector2D & b){

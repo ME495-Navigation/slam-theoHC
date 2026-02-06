@@ -91,6 +91,7 @@ namespace turtlelib
         /// \return the angular displacement, in radians
         double rotation() const {return this->rot;}
 
+        // This violates the homework specifications of not adding public api functions
         void setrot(const double newrot){rot = newrot;}
         void setoffset(const Vector2D offset){this->offset = offset;}
         
@@ -113,7 +114,12 @@ namespace turtlelib
     /// \param rhs - the right hand operand
     /// \return the composition of the two transforms
     /// HINT: This function should be implemented in terms of *=
-    inline Transform2D operator*(Transform2D lhs, const Transform2D & rhs){return lhs *= rhs;}
+    inline Transform2D operator*(Transform2D lhs, const Transform2D & rhs){
+        // return lhs*=rhs is not strictly equivalent to
+        // lhs *= rhs;
+        // return lhs;
+        // and has subtle pitfalls vs the standard way of doing it
+        return lhs *= rhs;}
 
 }
 
@@ -198,6 +204,7 @@ class std::formatter<turtlelib::Transform2D, CharT> : public std::formatter<turt
         auto out = ctx.out();
 
         out = std::format_to(out, "{{");
+        // superfluous this
         if(this->option == 'R'){
             out = super::format(obj.rotation(), ctx);
             out = std::format_to(out, " rad, ");

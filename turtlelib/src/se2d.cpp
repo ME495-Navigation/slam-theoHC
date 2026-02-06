@@ -5,6 +5,7 @@
 namespace turtlelib{
 
 //Helper macro for the stream operator
+    // don't use macros
 #define REMOVE_COMMA if(is.peek() == ',') is.get();
 #define REMOVE_SPACE if(is.peek() == ' ') is.get();
 
@@ -58,7 +59,7 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
         is.get();
     }
 
-    double rot;
+    double rot; // uninitialized varaible
 
     is >> rot;
     tf.setrot(rot);
@@ -99,7 +100,7 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
     return is;
 }
 
-Transform2D::Transform2D(){
+    Transform2D::Transform2D(){ // use initializers
     offset = Vector2D(0, 0);
     rot = 0;
 }
@@ -129,7 +130,7 @@ Point2D Transform2D::operator()(Point2D p) const{
 }
 
 Vector2D Transform2D::operator()(Vector2D v) const{
-    Vector2D out;
+    Vector2D out; // unnecessary temporary
 
     out.x = v.x * cos(rot) - v.y * sin(rot);
     out.y = v.x * sin(rot) + v.y * cos(rot);
@@ -138,7 +139,7 @@ Vector2D Transform2D::operator()(Vector2D v) const{
 }
 
 Twist2D Transform2D::operator()(Twist2D v) const{
-    double newx = v.x * cos(rot) - v.y * sin(rot);
+    double newx = v.x * cos(rot) - v.y * sin(rot); // auto
     double newy = v.x * sin(rot) + v.y * cos(rot);
 
     v.x = newx + v.omega * (offset.y);

@@ -85,6 +85,7 @@ void turtlelib::Svg::addFrame(Transform2D frame, std::string name, unsigned int 
 }
 
 void turtlelib::Svg::drawFrame(dispFrame frame){
+    // auto
     Transform2D drawtrans = CenterOfPage * frame.transform;
 
     Point2D origin = drawtrans(Point2D(0,0));

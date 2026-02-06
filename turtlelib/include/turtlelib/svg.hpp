@@ -32,6 +32,10 @@ namespace turtlelib{
         /// \brief Default constructor which adds a frame at the origin.
         Svg();
 
+        // why using floats?
+        // why are these public: this allows a user to violate an invariant:
+        // user can set ysize, draw things (that depend on ysize) then change
+        // ysize. The svg written will then be using a different size than what was drawn
         float xsize = 8.5;
         float ysize = 11;
         float dpi = 96;

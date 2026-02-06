@@ -12,10 +12,12 @@
 
 using namespace std::chrono_literals;
 
+// this comment seems quite out of place, given that you aren't using C++ lambdas...
 /* This example creates a subclass of Node and uses a fancy C++11 lambda
  * function to shorten the callback syntax, at the expense of making the
  * code somewhat more difficult to understand at first glance. */
 
+/// where are the comments explaining the ROS API!
 class nusimulator : public rclcpp::Node
 {
 public:
@@ -80,6 +82,7 @@ private:
 
   int count;
 
+    // use double not float
   const float wall_thickness = .1;
 
   void timer_callback()
@@ -114,7 +117,7 @@ private:
     const std::shared_ptr<std_srvs::srv::Empty::Response> response)
   {
         //Reset count
-    (void)request;
+      (void)request; // just omit the name of the argument to avoid the warning
     (void)response;
     count = 0;
 
