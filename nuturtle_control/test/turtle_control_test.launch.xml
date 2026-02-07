@@ -4,7 +4,7 @@
 
     <arg 
         name='test_duration'
-        default='2.0'
+        default='5.0'
         description='Max length of test in seconds.'
     />
 

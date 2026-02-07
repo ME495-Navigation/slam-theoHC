@@ -15,13 +15,13 @@ TEST_CASE("turtle_control node can process pure translational cmd_vel", "[turtle
     node->get_parameter("test_duration").get_parameter_value().get<double>();
 
     auto TwistPub =
-    node->create_publisher<geometry_msgs::msg::Twist>("turtle1/cmd_vel", 10);
+    node->create_publisher<geometry_msgs::msg::Twist>("turtle_control/cmd_vel", 10);
 
     bool got_msg = false;
 
     auto WheelCmdSub =
     node->create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
-            "turtle1/wheel_cmd", 10,
+            "turtle_control/wheel_cmd", 10,
     [&](const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg) {
       got_msg = true;
       REQUIRE(msg->left_velocity == Catch::Approx(msg->right_velocity));
