@@ -72,6 +72,7 @@ if(BUILD_TESTING)
     rclcpp::rclcpp
     ${geometry_msgs_TARGETS}
     ${nuturtlebot_msgs_TARGETS}
+    ${sensor_msgs_TARGETS}
   )
   install(TARGETS
   turtle_control_test
