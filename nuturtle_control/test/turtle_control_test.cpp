@@ -101,14 +101,16 @@ TEST_CASE("encoder data in sensor_msg is properly converted to join states", "[t
 
   bool got_msg = false;
 
+  const int NUM_TICKS = 7;
+
   auto JointStateSub =
     node->create_subscription<sensor_msgs::msg::JointState>(
           "turtle_control/joint_states", 10,
     [&](const sensor_msgs::msg::JointState::SharedPtr msg) {
       got_msg = true;
       REQUIRE(msg->position.size() == 2);
-      REQUIRE(msg->position[0] == Catch::Approx(1.0 / TICKS_PER_RAD));
-      REQUIRE(msg->position[1] == Catch::Approx(1.0 / TICKS_PER_RAD));
+      REQUIRE(msg->position[0] == Catch::Approx((double) NUM_TICKS / (double) TICKS_PER_RAD));
+      REQUIRE(msg->position[1] == Catch::Approx((double) NUM_TICKS / (double) TICKS_PER_RAD));
           });
 
   rclcpp::Time start_time = rclcpp::Clock().now();
@@ -117,8 +119,9 @@ TEST_CASE("encoder data in sensor_msg is properly converted to join states", "[t
     !got_msg)
   {
     auto sensorDataMsg = nuturtlebot_msgs::msg::SensorData();
-    sensorDataMsg.left_encoder = 1;
-    sensorDataMsg.right_encoder = 1;
+    sensorDataMsg.left_encoder = NUM_TICKS;
+    sensorDataMsg.right_encoder = NUM_TICKS;
+    sensorDataMsg.stamp = rclcpp::Clock().now();
 
     SensorDataPub->publish(sensorDataMsg);
     rclcpp::spin_some(node);

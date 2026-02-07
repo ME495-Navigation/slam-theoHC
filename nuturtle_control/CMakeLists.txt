@@ -65,7 +65,7 @@ if(BUILD_TESTING)
 
   include(CTest)
 
-  add_executable(turtle_control_test src/turtle_control_test.cpp)
+  add_executable(turtle_control_test test/turtle_control_test.cpp)
 
   target_link_libraries(turtle_control_test
     catch_ros2::catch_ros2_with_node_main
