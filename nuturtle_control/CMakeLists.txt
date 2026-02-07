@@ -73,6 +73,10 @@ if(BUILD_TESTING)
     ${geometry_msgs_TARGETS}
     ${nuturtlebot_msgs_TARGETS}
   )
+  install(TARGETS
+  turtle_control_test
+  DESTINATION lib/${PROJECT_NAME}
+  )
 
   install(FILES
     test/turtle_control_test.launch.xml

@@ -7,34 +7,34 @@
 #include <nuturtle_control/srv/turt_circle.hpp>
 
 class circle : public rclcpp::Node{
-  public:
-    circle();
+public:
+  circle();
 
-  private:
-    float angularVel = 0.2;
-    float radius = 0.3;
+private:
+  float angularVel = 0.2;
+  float radius = 0.3;
 
-    bool moving = false;
-    bool clockwise = true;
-    bool forward = false;
+  bool moving = false;
+  bool clockwise = true;
+  bool forward = false;
 
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velPub;
-    rclcpp::Service<std_srvs::srv::Empty>::SharedPtr startServ;
-    rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reverseServ;
-    rclcpp::Service<nuturtle_control::srv::TurtCircle>::SharedPtr circleServ;
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velPub;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr startServ;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reverseServ;
+  rclcpp::Service<nuturtle_control::srv::TurtCircle>::SharedPtr circleServ;
 
 
-    rclcpp::TimerBase::SharedPtr controlTimer;
+  rclcpp::TimerBase::SharedPtr controlTimer;
 
-    void controlCallback();
-    void startCallback(
-        const std::shared_ptr<std_srvs::srv::Empty::Request> request,
-        std::shared_ptr<std_srvs::srv::Empty::Response> response);
-    void reverseCallback(
-        const std::shared_ptr<std_srvs::srv::Empty::Request> request,
-        std::shared_ptr<std_srvs::srv::Empty::Response> response);
-    void circleCallback(
-        const std::shared_ptr<nuturtle_control::srv::TurtCircle::Request> request,
-        std::shared_ptr<nuturtle_control::srv::TurtCircle::Response> response);
+  void controlCallback();
+  void startCallback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request> request,
+    std::shared_ptr<std_srvs::srv::Empty::Response> response);
+  void reverseCallback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request> request,
+    std::shared_ptr<std_srvs::srv::Empty::Response> response);
+  void circleCallback(
+    const std::shared_ptr<nuturtle_control::srv::TurtCircle::Request> request,
+    std::shared_ptr<nuturtle_control::srv::TurtCircle::Response> response);
 
 };
