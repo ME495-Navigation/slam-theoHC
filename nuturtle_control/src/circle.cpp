@@ -35,26 +35,33 @@ void circle::controlCallback()
 }
 
 void circle::reverseCallback(
-  const std::shared_ptr<std_srvs::srv::Empty::Request> request,
-  std::shared_ptr<std_srvs::srv::Empty::Response> response)
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  std::shared_ptr<std_srvs::srv::Empty::Response>)
 {
   clockwise = !clockwise;
   forward = !forward;
 }
 
 void circle::startCallback(
-  const std::shared_ptr<std_srvs::srv::Empty::Request> request,
-  std::shared_ptr<std_srvs::srv::Empty::Response> response)
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  std::shared_ptr<std_srvs::srv::Empty::Response>)
 {
   moving = !moving;
 }
 
 void circle::circleCallback(
   const std::shared_ptr<nuturtle_control::srv::TurtCircle::Request> request,
-  std::shared_ptr<nuturtle_control::srv::TurtCircle::Response> response)
+  std::shared_ptr<nuturtle_control::srv::TurtCircle::Response>)
 {
-  (void)response;
   clockwise = request->angular_velocity < 0;
   radius = request->radius;
   angularVel = request->angular_velocity;
+}
+
+int main(int argc, char * argv[])
+{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<circle>());
+  rclcpp::shutdown();
+  return 0;
 }

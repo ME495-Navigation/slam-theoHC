@@ -16,20 +16,30 @@ find_package(turtlelib REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 find_package(rosidl_default_generators REQUIRED)
-
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/OdomConfig.srv"
   "srv/TurtCircle.srv"
 )
 
+rosidl_get_typesupport_target(
+        cpp_typesupport_target
+        ${PROJECT_NAME}
+        rosidl_typesupport_cpp
+)
 
 find_package(catch_ros2 REQUIRED)
 
 add_executable(turtle_control src/turtle_control.cpp)
+add_executable(odometry src/odometry.cpp)
+add_executable(circle src/circle.cpp)
+
 target_include_directories(turtle_control PRIVATE include)
+target_include_directories(odometry PRIVATE include)
+target_include_directories(circle PRIVATE include)
 
 target_link_libraries(
   turtle_control PRIVATE
@@ -41,11 +51,35 @@ target_link_libraries(
   ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
   ${nuturtlebot_msgs_TARGETS}
+)
+
+target_link_libraries(
+  odometry PRIVATE
+  turtlelib::turtlelib
+  rclcpp::rclcpp
+  tf2::tf2
+  tf2_ros::tf2_ros
+  tf2_geometry_msgs::tf2_geometry_msgs
+  ${geometry_msgs_TARGETS}
   ${nav_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  ${cpp_typesupport_target}
+)
+
+target_link_libraries(
+  circle PRIVATE
+  turtlelib::turtlelib
+  rclcpp::rclcpp
+  ${geometry_msgs_TARGETS}
+  ${std_srvs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${cpp_typesupport_target}
 )
 
 install(TARGETS
   turtle_control
+  odometry
+  circle
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY
@@ -66,6 +100,7 @@ if(BUILD_TESTING)
   include(CTest)
 
   add_executable(turtle_control_test test/turtle_control_test.cpp)
+  add_executable(turtle_odom_test test/turtle_odom_test_node.cpp)
 
   target_link_libraries(turtle_control_test
     catch_ros2::catch_ros2_with_node_main
@@ -74,8 +109,16 @@ if(BUILD_TESTING)
     ${nuturtlebot_msgs_TARGETS}
     ${sensor_msgs_TARGETS}
   )
+    target_link_libraries(turtle_odom_test
+    catch_ros2::catch_ros2_with_node_main
+    rclcpp::rclcpp
+    tf2_ros::tf2_ros
+    ${cpp_typesupport_target}
+  )
+
   install(TARGETS
   turtle_control_test
+  turtle_odom_test
   DESTINATION lib/${PROJECT_NAME}
   )
 

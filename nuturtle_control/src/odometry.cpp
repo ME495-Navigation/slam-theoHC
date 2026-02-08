@@ -88,8 +88,29 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg)
 
 void odometry::initPoseCallback(
   const std::shared_ptr<nuturtle_control::srv::OdomConfig::Request> request,
-  std::shared_ptr<nuturtle_control::srv::OdomConfig::Response> response)
+  std::shared_ptr<nuturtle_control::srv::OdomConfig::Response>)
 {
   turtlelib::Transform2D new_pose(request->x, request->y, request->theta);
   robotState.set_pose(new_pose);
+
+  geometry_msgs::msg::TransformStamped t;
+  t.header.stamp = this->now();
+  t.header.frame_id = get_parameter("odom_id").as_string();
+  t.child_frame_id = get_parameter("body_id").as_string();
+  turtlelib::Transform2D pose = robotState.get_pose();
+  t.transform.translation.x = pose.translation().x;
+  t.transform.translation.y = pose.translation().y;
+  t.transform.translation.z = 0.0;
+  double theta = pose.rotation();
+  tf2::Quaternion q;
+  q.setRPY(0, 0, theta);
+  t.transform.rotation = tf2::toMsg(q);
+}
+
+int main(int argc, char * argv[])
+{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<odometry>());
+  rclcpp::shutdown();
+  return 0;
 }
