@@ -23,6 +23,12 @@ namespace turtlelib{
         /// \param new_wheel2 - new angle of wheel 2 (radians)
         void forwardK(double new_wheel1, double new_wheel2);
 
+        /// \brief Update the robot's pose based on wheel movements
+        /// \param new_wheel_angles - a Vector2D where x is wheel 1 angle and y is wheel 2 angle (in radians)
+        void forwardK(Vector2D new_wheel_angles){
+            forwardK(new_wheel_angles.x, new_wheel_angles.y);
+        }
+
         /// \brief Compute wheel velocities from a given body twist
         /// \param vel - the desired body twist
         /// \return a Vector2D where x is wheel 1 velocity and y is wheel 2 velocity (in rad/s)
@@ -40,6 +46,10 @@ namespace turtlelib{
         /// \param wheel1 - angle of wheel 1 (radians)
         /// \param wheel2 - angle of wheel 2 (radians)
         void set_wheels(double wheel1, double wheel2);
+
+        /// \brief Get the current wheel angles
+        /// \return a Vector2D where x is wheel 1 angle and y is wheel 2 angle (in radians)
+        Vector2D get_wheels() const {return {wheel1_angle, wheel2_angle};}
 
         /// \brief Get the current body twist of the robot
         /// \return the current Twist2D representing the robot's body twist, calculated during the last forwardK call. NOT scaled by time.

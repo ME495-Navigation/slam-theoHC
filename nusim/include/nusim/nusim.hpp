@@ -11,6 +11,9 @@
 #include "tf2/LinearMath/Quaternion.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
+#include <nuturtlebot_msgs/msg/wheel_commands.hpp>
+#include <nuturtlebot_msgs/msg/sensor_data.hpp>
+#include <turtlelib/diff_drive.hpp>
 
 using namespace std::chrono_literals;
 
@@ -29,9 +32,13 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr wallpub;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstaclepub;
 
-  double x;
-  double y;
-  double theta;
+  rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensordatapub;
+  rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheelcmdsub;
+
+  turtlelib::DiffDrive robotState;
+
+  double left_wheel_vel;
+  double right_wheel_vel;
 
   int count;
 
@@ -39,6 +46,8 @@ private:
 
                 /// \brief Timer callback to publish timestep and transform
   void timer_callback();
+
+  void wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg);
 
                 /// \brief Reset callback to reset robot state
   void reset_callback(

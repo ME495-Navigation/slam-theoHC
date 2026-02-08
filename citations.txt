@@ -43,3 +43,5 @@ Citation 19: Claude Haiku 4.5 caught a -/_ confusion in my nuturtle_control path
 Citation 20: Claude Haiku 4.5 indicated that turtlelib had to be referred to as turtlelib::turtlelib when included in other CMakeLists.
 
 Citation 21: Claude Haiku 4.5 reccomended adding a default constructor to diff_drive to make using it easier.
+
+Citation 22: group and arg choice launchfile syntax, as well as some of the remappings, from Greg. 

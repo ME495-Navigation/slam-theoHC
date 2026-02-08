@@ -1,4 +1,6 @@
 #include <nusim/nusim.hpp>
+#include <algorithm>
+#include <numbers>
 
 nusimulator::nusimulator()
 : Node("nusimulator"), count(0)
@@ -15,10 +17,20 @@ nusimulator::nusimulator()
   declare_parameter("obstacles.y", std::vector<double>());
   declare_parameter("obstacles.r", 3.0);
 
+  declare_parameter<double>("wheel_radius");
+  declare_parameter<double>("track_width");
+  declare_parameter<double>("encoder_ticks_per_rad");
+  declare_parameter<double>("motor_cmd_max");
+  declare_parameter<double>("motor_cmd_per_rad_sec");
 
-  x = get_parameter("x0").as_double();
-  y = get_parameter("y0").as_double();
-  theta = get_parameter("theta0").as_double();
+  double x = get_parameter("x0").as_double();
+  double y = get_parameter("y0").as_double();
+  double theta = get_parameter("theta0").as_double();
+
+  robotState = turtlelib::DiffDrive(get_parameter("wheel_radius").as_double(),
+                                  get_parameter("track_width").as_double());
+
+  robotState.set_pose({theta, x, y});
 
   tf_broadcaster =
     std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -29,15 +41,25 @@ nusimulator::nusimulator()
 
   auto PeristentQoS = rclcpp::QoS(10).transient_local();
 
-        //publishers
+        //PUBLISHERS
   timesteppub = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
+
+      //Publishers for visualization
   wallpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls",
         PeristentQoS);
   obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles",
         PeristentQoS);
-        //timers
+      //Publishers for robot state
+  sensordatapub = this->create_publisher<nuturtlebot_msgs::msg::SensorData>("~/sensor_data", 10);
+
+        //SUBSCRIBERS
+  wheelcmdsub = this->create_subscription<nuturtlebot_msgs::msg::WheelCommands>("~/wheel_commands",
+        10, std::bind(&nusimulator::wheelcmd_callback, this, std::placeholders::_1));
+
+        //TIMERS
   simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::timer_callback, this));
-        //services
+
+        //SERVICES
   resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset",
         std::bind(&nusimulator::reset_callback,
                 this, std::placeholders::_1, std::placeholders::_2));
@@ -53,13 +75,34 @@ void nusimulator::timer_callback()
   timemsg.data = count++;
   this->timesteppub->publish(timemsg);
 
-        //Publish transform
+    //Update robot state
+  double dt = 1000.0 / get_parameter("rate").as_double();
+
+  turtlelib::Vector2D wheel_positions = robotState.get_wheels();
+  wheel_positions.x += turtlelib::normalize_angle(left_wheel_vel * dt);
+  wheel_positions.y += turtlelib::normalize_angle(right_wheel_vel * dt);
+
+  robotState.forwardK(wheel_positions);
+
+  double encoder_ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_double();
+  auto sensormsg = nuturtlebot_msgs::msg::SensorData();
+  sensormsg.stamp = this->get_clock()->now();
+
+  sensormsg.left_encoder = static_cast<int>((std::numbers::pi + wheel_positions.x) * encoder_ticks_per_rad);
+  sensormsg.right_encoder = static_cast<int>((std::numbers::pi + wheel_positions.y) * encoder_ticks_per_rad);
+  sensordatapub->publish(sensormsg);
+
+    //Publish transform
   geometry_msgs::msg::TransformStamped t;
 
   t.header.stamp = this->get_clock()->now();
   t.header.frame_id = "nusim/world";
   t.child_frame_id = "red/base_footprint";
 
+  turtlelib::Transform2D robotPose = robotState.get_pose();
+  double x = robotPose.translation().x;
+  double y = robotPose.translation().y;
+  double theta = robotPose.rotation();
   tf2::Quaternion q;
   q.setRPY(0, 0, theta);
   t.transform.rotation.x = q.x();
@@ -73,6 +116,16 @@ void nusimulator::timer_callback()
   tf_broadcaster->sendTransform(t);
 }
 
+void nusimulator::wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg)
+{
+  int max_motor_cmd = get_parameter("motor_cmd_max").as_int();
+  int left_cmd = std::clamp(msg->left_velocity, -max_motor_cmd, max_motor_cmd);
+  int right_cmd = std::clamp(msg->right_velocity, -max_motor_cmd, max_motor_cmd);
+  
+  left_wheel_vel = left_cmd * get_parameter("motor_cmd_per_rad_sec").as_double();
+  right_wheel_vel = right_cmd * get_parameter("motor_cmd_per_rad_sec").as_double();
+}
+
 void nusimulator::reset_callback(
   const std::shared_ptr<std_srvs::srv::Empty::Request>,
   const std::shared_ptr<std_srvs::srv::Empty::Response>)
@@ -81,9 +134,11 @@ void nusimulator::reset_callback(
   count = 0;
 
         //Reset robot position
-  x = get_parameter("x0").as_double();
-  y = get_parameter("y0").as_double();
-  theta = get_parameter("theta0").as_double();
+  double x = get_parameter("x0").as_double();
+  double y = get_parameter("y0").as_double();
+  double theta = get_parameter("theta0").as_double();
+
+  robotState.set_pose({theta, x, y});
 }
 
 void nusimulator::publish_obstacle()
