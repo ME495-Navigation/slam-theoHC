@@ -15,7 +15,7 @@ TEST_CASE("Test initial pose service of the odometry node", "[odometry]") {
     node->get_parameter("test_duration").get_parameter_value().get<double>();
 
     auto initPoseClient =
-    node->create_client<nuturtle_control::srv::OdomConfig>("odometry/initial_pose");
+    node->create_client<nuturtle_control::srv::OdomConfig>("/odometry/initial_pose");
 
     rclcpp::Time start_time = rclcpp::Clock().now();
     bool got_response = false;
@@ -38,6 +38,7 @@ TEST_CASE("Test initial pose service of the odometry node", "[odometry]") {
     {
       auto response = result_future.get();
       got_response = true;
+      break;
     } else {
       REQUIRE(false);    // fail the test if the service call failed
     }
@@ -58,12 +59,7 @@ TEST_CASE("Test that transform between base_footprint and odom exists", "[odomet
 
     // publish a joint state message to trigger the odometry node to publish a transform
     auto JointStatePub =
-    node->create_publisher<sensor_msgs::msg::JointState>("odometry/joint_states", 10);
-
-    auto jointStateMsg = sensor_msgs::msg::JointState();
-    jointStateMsg.name = {"left_wheel_joint", "right_wheel_joint"};
-    jointStateMsg.position = {0.0, 0.0};
-    JointStatePub->publish(jointStateMsg);
+    node->create_publisher<sensor_msgs::msg::JointState>("/odometry/joint_states", 10);
 
     rclcpp::Time start_time = rclcpp::Clock().now();
     bool got_transform = false;
@@ -71,10 +67,17 @@ TEST_CASE("Test that transform between base_footprint and odom exists", "[odomet
     ((rclcpp::Clock().now() - start_time) < rclcpp::Duration::from_seconds(TEST_DURATION)) &&
     !got_transform)
   {
+    auto jointStateMsg = sensor_msgs::msg::JointState();
+    jointStateMsg.name = {"left_wheel_joint", "right_wheel_joint"};
+    jointStateMsg.position = {0.0, 0.0};
+    jointStateMsg.header.stamp = node->get_clock()->now();
+    JointStatePub->publish(jointStateMsg);
+
     try {
       auto transform = tf_buffer.lookupTransform(
                 "odom", "base_footprint", tf2::TimePointZero);
       got_transform = true;
+      break;
     } catch (const tf2::TransformException & ex) {
             // If the transform is not available yet, just continue and try again.
       continue;

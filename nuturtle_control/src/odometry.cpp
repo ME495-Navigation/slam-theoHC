@@ -90,7 +90,7 @@ void odometry::initPoseCallback(
   const std::shared_ptr<nuturtle_control::srv::OdomConfig::Request> request,
   std::shared_ptr<nuturtle_control::srv::OdomConfig::Response>)
 {
-  turtlelib::Transform2D new_pose(request->x, request->y, request->theta);
+  turtlelib::Transform2D new_pose(request->theta, request->x, request->y);
   robotState.set_pose(new_pose);
 
   geometry_msgs::msg::TransformStamped t;

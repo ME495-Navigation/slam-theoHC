@@ -10,6 +10,8 @@
 
     <node pkg='nuturtle_control' exec='odometry'>
         <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
+        <param name="wheel_left" value="left_wheel_joint"/>
+        <param name="wheel_right" value="right_wheel_joint"/>
     </node>
 
     <catch2_integration_test_node pkg='nuturtle_control' exec='turtle_odom_test'>
