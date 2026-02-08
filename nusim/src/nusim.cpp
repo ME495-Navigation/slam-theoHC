@@ -74,12 +74,10 @@ void nusimulator::timer_callback()
 }
 
 void nusimulator::reset_callback(
-  const std::shared_ptr<std_srvs::srv::Empty::Request> request,
-  const std::shared_ptr<std_srvs::srv::Empty::Response> response)
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  const std::shared_ptr<std_srvs::srv::Empty::Response>)
 {
         //Reset count
-  (void)request;
-  (void)response;
   count = 0;
 
         //Reset robot position

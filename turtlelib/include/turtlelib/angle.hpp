@@ -24,7 +24,7 @@ namespace turtlelib
     /// \returns The equivalent angle in radians
     constexpr double deg2rad(double deg)
     {
-        return (deg / 180) * pi;
+        return (deg / 180.0) * pi;
     }
 
     /// \brief Convert radians to degrees
@@ -32,7 +32,7 @@ namespace turtlelib
     /// \returns The equivalent angle in degrees
     constexpr double rad2deg(double rad)
     {
-        return (rad / pi) * 180;
+        return (rad / pi) * 180.0;
     }
 
     /// \brief Wrap an angle to (-PI, PI]
@@ -41,10 +41,10 @@ namespace turtlelib
     constexpr double normalize_angle(double rad)
     {
         // ####### begin_citation [5] #######
-        double r = std::fmod(rad, 2 * pi);
+        double r = std::fmod(rad, 2.0 * pi);
 
-        if (r <= -pi) r += 2 * pi;
-        if (r >  pi)  r -= 2 * pi;
+        if (r <= -pi) r += 2.0 * pi;
+        if (r >  pi)  r -= 2.0 * pi;
         return r;
         // ####### end_citation [5] #######
     }

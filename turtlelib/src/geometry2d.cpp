@@ -78,10 +78,10 @@ namespace turtlelib{
     }
 
     Vector2D normalize(Vector2D in){
-        float len = magnitude(in);
+        double len = magnitude(in);
         
-        in.x *= 1/len;
-        in.y *= 1/len;
+        in.x /= len;
+        in.y /= len;
 
         return in;
     }

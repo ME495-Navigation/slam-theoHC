@@ -137,7 +137,10 @@ namespace turtlelib
     /// \param rhs - the right hand operand
     /// \return the composition of the two transforms
     /// HINT: This function should be implemented in terms of *=
-    inline Transform2D operator*(Transform2D lhs, const Transform2D & rhs){return lhs *= rhs;}
+    inline Transform2D operator*(Transform2D lhs, const Transform2D & rhs){
+        lhs *= rhs;
+        return lhs;
+    }
 
     Transform2D integrate_twist(const Twist2D & tw);
 

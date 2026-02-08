@@ -11,7 +11,7 @@ TEST_CASE("circle node publishes cmd_vel at 100hz", "[circle]") {
   const auto TEST_DURATION =
     node->get_parameter("test_duration").get_parameter_value().get<double>();
 
-    int numreceived = 0;
+  int numreceived = 0;
 
   auto TwistSub =
     node->create_subscription<geometry_msgs::msg::Twist>("circle/cmd_vel", 10,

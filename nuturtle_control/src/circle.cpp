@@ -15,7 +15,7 @@ circle::circle()
         std::bind(&circle::reverseCallback, this, std::placeholders::_1, std::placeholders::_2));
 
   controlTimer = this->create_timer(
-        std::chrono::seconds(1000 / get_parameter("frequency").as_int()),
+        std::chrono::milliseconds(1000 / get_parameter("frequency").as_int()),
         std::bind(&circle::controlCallback, this));
 }
 
