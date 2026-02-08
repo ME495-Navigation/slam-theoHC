@@ -5,6 +5,37 @@
     <arg name="robot" default="none" description="The robotic context. Allowable: nusim, localhost, none."/>
     <arg name="use_rviz" default="false" description="Whether or not to use rviz. Allowable: true, false. MUST BE FALSE WHEN robot:=localhost"/>
 
-    
+    <!-- cmd_source argument handling -->
 
+    <node pkg="nuturtle_control" exec="circle" if="$(eval '\'$(var cmd_src)\' == \'circle\')"/>
+    <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" if="$(eval '\'$(var cmd_src)\' == \'teleop\')"/>
+
+    <!-- robot argument handling -->
+
+    <node pkg="nusim" exec="nusim" if="$(eval '\'$(var robot)\' == \'nusim\')"/>
+    <node pkg="nuturtle_control" exec="odometry" if="$(eval '\'$(var robot)\' == \'nusim\')"/>
+    <node pkg="nuturtle_control" exec="turtle_control" if="$(eval '\'$(var robot)\' == \'nusim\')"/>
+
+    <node pkg="nuturtle_control" exec="odometry" if="$(eval '\'$(var robot)\' == \'localhost\')"/>
+    <node pkg="nuturtle_control" exec="turtle_control" if="$(eval '\'$(var robot)\' == \'localhost\')"/>
+
+    <!-- use_viz argument handling -->
+    <node pkg="rviz2" 
+    exec="rviz2" 
+    on_exit='shutdown' if="$(eval '\'$(var use_rviz)\' == \'true\')"/>
+
+    <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.xml" 
+    if="$(eval '\'$(var use_rviz)\' == \'true\')">
+        <arg name="use_rviz" value="false"/>
+        <arg name="color" value="blue"/>
+    </include>
+
+
+    <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.xml" 
+    if="$(eval '\'$(var use_rviz)\' == \'true\' and \'$(var robot)\' == \'nusim\')">
+        <arg name="use_rviz" value="false"/>
+        <arg name="color" value="red"/>
+    </include>
+
+<!-- args="-d $(find-pkg-share nusim)/config/nusim.rviz"  -->
 </launch>
