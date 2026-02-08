@@ -101,6 +101,7 @@ if(BUILD_TESTING)
 
   add_executable(turtle_control_test test/turtle_control_test.cpp)
   add_executable(turtle_odom_test test/turtle_odom_test_node.cpp)
+  add_executable(turtle_circle_test test/turtle_circle_test.cpp)
 
   target_link_libraries(turtle_control_test
     catch_ros2::catch_ros2_with_node_main
@@ -109,26 +110,45 @@ if(BUILD_TESTING)
     ${nuturtlebot_msgs_TARGETS}
     ${sensor_msgs_TARGETS}
   )
-    target_link_libraries(turtle_odom_test
+
+  target_link_libraries(turtle_odom_test
     catch_ros2::catch_ros2_with_node_main
     rclcpp::rclcpp
     tf2_ros::tf2_ros
     ${cpp_typesupport_target}
+    ${sensor_msgs_TARGETS}
+  )
+
+  target_link_libraries(turtle_circle_test
+    catch_ros2::catch_ros2_with_node_main
+    rclcpp::rclcpp
+    ${geometry_msgs_TARGETS}
   )
 
   install(TARGETS
   turtle_control_test
   turtle_odom_test
+  turtle_circle_test
   DESTINATION lib/${PROJECT_NAME}
   )
 
   install(FILES
     test/turtle_control_test.launch.xml
+    test/turtle_odom_test.launch.xml
+    test/turtle_circle_test.launch.xml
     DESTINATION share/${PROJECT_NAME}
   )
 
   catch_ros2_add_integration_test(turtle_control_testXML
     LAUNCH_FILE turtle_control_test.launch.xml
+  )
+
+  catch_ros2_add_integration_test(turtle_odom_testXML
+    LAUNCH_FILE turtle_odom_test.launch.xml
+  )
+
+  catch_ros2_add_integration_test(turtle_circle_testXML
+    LAUNCH_FILE turtle_circle_test.launch.xml
   )
 
 endif()

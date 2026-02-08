@@ -1,0 +1,20 @@
+<launch>
+
+    <catch2_launch_file description='Testing the odometry node'/>
+
+    <arg 
+        name='test_duration'
+        default='2.0'
+        description='Max length of test in seconds.'
+    />
+
+    <node pkg='nuturtle_control' exec='odometry'>
+        <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
+    </node>
+
+    <catch2_integration_test_node pkg='nuturtle_control' exec='turtle_odom_test'>
+        <param name='test_duration' value='$(var test_duration)'/>
+        <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
+    </catch2_integration_test_node>
+
+</launch>

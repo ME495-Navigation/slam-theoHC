@@ -105,6 +105,8 @@ void odometry::initPoseCallback(
   tf2::Quaternion q;
   q.setRPY(0, 0, theta);
   t.transform.rotation = tf2::toMsg(q);
+
+  tf_broadcaster->sendTransform(t);
 }
 
 int main(int argc, char * argv[])
