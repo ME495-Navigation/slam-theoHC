@@ -4,16 +4,23 @@
 circle::circle()
 : rclcpp::Node("circle")
 {
+  // Frequency at which commands are published in Hz
   declare_parameter<int>("frequency", 100);
 
+  // Publishes twists to cmd_vel corresponding to circular motion
   velPub = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+  // Toggles whether or not the robot should moves. Starts stationary
   startServ = this->create_service<std_srvs::srv::Empty>(
         "stop",
         std::bind(&circle::startCallback, this, std::placeholders::_1, std::placeholders::_2));
+  // Reverses the direction of motion. Starts forward.
   reverseServ = this->create_service<std_srvs::srv::Empty>(
         "reverse",
         std::bind(&circle::reverseCallback, this, std::placeholders::_1, std::placeholders::_2));
-
+  // Allows the user to change the radius and angular velocity of the circle.
+  circleServ = this->create_service<nuturtle_control::srv::TurtCircle>(
+        "circle",
+        std::bind(&circle::circleCallback, this, std::placeholders::_1, std::placeholders::_2));
   controlTimer = this->create_timer(
         std::chrono::milliseconds(1000 / get_parameter("frequency").as_int()),
         std::bind(&circle::controlCallback, this));

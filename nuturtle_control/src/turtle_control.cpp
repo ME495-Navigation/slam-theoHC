@@ -3,18 +3,23 @@
 turtle_control::turtle_control()
 : Node("turtle_control")
 {
+  // Radius of the wheels of the robot
   declare_parameter<double>("wheel_radius");
+  // Distance between the wheels of the robot
   declare_parameter<double>("track_width");
+  // Number of encoder ticks per radian of wheel travel on the robot
   declare_parameter<double>("encoder_ticks_per_rad");
+  // Number of motor command units per radian per second of wheel velocity
   declare_parameter<double>("motor_cmd_per_rad_sec");
 
   rclcpp::Parameter filler_param;
 
   if(!(get_parameter("wheel_radius", filler_param) &&
     get_parameter("track_width", filler_param) &&
-    get_parameter("encoder_ticks_per_rad", filler_param)))
+    get_parameter("encoder_ticks_per_rad", filler_param) &&
+    get_parameter("motor_cmd_per_rad_sec", filler_param)))
   {
-    RCLCPP_ERROR(get_logger(), "Parameters 'wheel_radius' and 'track_width' must be set");
+    RCLCPP_ERROR(get_logger(), "Parameters 'wheel_radius', 'track_width', 'encoder_ticks_per_rad', and 'motor_cmd_per_rad_sec' must be set");
     rclcpp::shutdown();
   }
 
@@ -23,14 +28,18 @@ turtle_control::turtle_control()
 
   robotState = turtlelib::DiffDrive(radius, track);
 
+  // Subscriber to cmd_vel which converts twists to motor commands
   cmdVelSub = this->create_subscription<geometry_msgs::msg::Twist>(
                 "cmd_vel", 10,
     std::bind(&turtle_control::cmdVelCallback, this, std::placeholders::_1));
+  // Subscriber to sensor_data which converts sensorData messages to joint states
   sensorDataSub = this->create_subscription<nuturtlebot_msgs::msg::SensorData>(
                 "sensor_data", 10,
     std::bind(&turtle_control::sensorDataCallback, this, std::placeholders::_1));
 
+  //publisher of wheel commands to the robot
   wheelCommander = this->create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
+  //publisher of joint states for consumption by odometry and visualization
   jointStatePub = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 }
 

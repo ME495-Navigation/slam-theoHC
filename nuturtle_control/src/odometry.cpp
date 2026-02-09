@@ -6,11 +6,17 @@
 odometry::odometry()
 : Node("odometry")
 {
+  // Name of the body frame of the robot
   declare_parameter<std::string>("body_id", "base_footprint");
+  // Name of the frame that the robots position is computed relative to
   declare_parameter<std::string>("odom_id", "odom");
+  // Name of the left wheel joint
   declare_parameter<std::string>("wheel_left");
+  // Name of the right wheel joint
   declare_parameter<std::string>("wheel_right");
+  // Radius of the wheels of the robot
   declare_parameter<double>("wheel_radius");
+  // Distance between the wheels of the robot
   declare_parameter<double>("track_width");
 
   rclcpp::Parameter filler_param;
@@ -23,20 +29,23 @@ odometry::odometry()
     rclcpp::shutdown();
   }
 
+  // Subscribes to the joint states of the robot of interest
   jsSub = this->create_subscription<sensor_msgs::msg::JointState>(
                 "joint_states", 10,
                  std::bind(&odometry::odomCallback, this, std::placeholders::_1));
-
+  // Publishes the computed odometry
   odomPub = this->create_publisher<nav_msgs::msg::Odometry>("odom", 10);
 
-  robotState = turtlelib::DiffDrive(get_parameter("wheel_radius").as_double(),
-                                      get_parameter("track_width").as_double());
-
+  // Publishes the computed offset of the robot relative to the odom frame
   tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+  // Service to set the initial pose of the robot
   initPoseServ = this->create_service<nuturtle_control::srv::OdomConfig>(
         "initial_pose",
         std::bind(&odometry::initPoseCallback, this, std::placeholders::_1, std::placeholders::_2));
+
+  robotState = turtlelib::DiffDrive(get_parameter("wheel_radius").as_double(),
+                                    get_parameter("track_width").as_double());
 }
 
 void odometry::odomCallback(const sensor_msgs::msg::JointState msg)

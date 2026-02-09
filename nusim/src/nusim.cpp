@@ -43,16 +43,18 @@ nusimulator::nusimulator()
         //PUBLISHERS
   timesteppub = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
 
-      //Publishers for visualization
+      //Publishers for visualization of walls and obstacles
   wallpub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_walls",
         PeristentQoS);
   obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles",
         PeristentQoS);
-      //Publishers for robot state
+      // Publishes the wheel position of the simulated robot
   sensordatapub = this->create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+      // Publishes the joint states of the simulated robot
   jointpub = this->create_publisher<sensor_msgs::msg::JointState>("red/joint_states", 10);
 
         //SUBSCRIBERS
+        // Subscriber to wheel commands for simulated robot
   wheelcmdsub = this->create_subscription<nuturtlebot_msgs::msg::WheelCommands>("red/wheel_cmd",
         10, std::bind(&nusimulator::wheelcmd_callback, this, std::placeholders::_1));
 
@@ -60,6 +62,7 @@ nusimulator::nusimulator()
   simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::timer_callback, this));
 
         //SERVICES
+        // Resets the simulation
   resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset",
         std::bind(&nusimulator::reset_callback,
                 this, std::placeholders::_1, std::placeholders::_2));

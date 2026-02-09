@@ -18,7 +18,6 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr jsSub;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPub;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
-
   rclcpp::Service<nuturtle_control::srv::OdomConfig>::SharedPtr initPoseServ;
 
   void odomCallback(const sensor_msgs::msg::JointState msg);
