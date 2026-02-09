@@ -19,7 +19,8 @@ turtle_control::turtle_control()
     get_parameter("encoder_ticks_per_rad", filler_param) &&
     get_parameter("motor_cmd_per_rad_sec", filler_param)))
   {
-    RCLCPP_ERROR(get_logger(), "Parameters 'wheel_radius', 'track_width', 'encoder_ticks_per_rad', and 'motor_cmd_per_rad_sec' must be set");
+    RCLCPP_ERROR(get_logger(),
+      "Parameters 'wheel_radius', 'track_width', 'encoder_ticks_per_rad', and 'motor_cmd_per_rad_sec' must be set");
     rclcpp::shutdown();
   }
 
