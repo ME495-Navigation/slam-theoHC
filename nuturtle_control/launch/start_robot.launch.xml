@@ -72,6 +72,8 @@
             <remap from="sensor_data" to="sensor_data"/>
             <remap from="joint_states" to="blue/joint_states"/>
         </node>
+
+        <node pkg="numsr_turtlebot" exec="numsr_turtlebot" name="numsr_turtlebot"/>
     </group>
 
     <!-- use_viz argument handling -->

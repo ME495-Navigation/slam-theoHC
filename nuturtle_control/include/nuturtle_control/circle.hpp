@@ -11,8 +11,8 @@ public:
   circle();
 
 private:
-  float angularVel = 0.75;
-  float radius = 0.3;
+  float angularVel = 1;
+  float radius = 0.15;
 
   bool moving = false;
   bool clockwise = true;

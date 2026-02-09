@@ -6,6 +6,7 @@ turtle_control::turtle_control()
   declare_parameter<double>("wheel_radius");
   declare_parameter<double>("track_width");
   declare_parameter<double>("encoder_ticks_per_rad");
+  declare_parameter<double>("motor_cmd_per_rad_sec");
 
   rclcpp::Parameter filler_param;
 
@@ -45,8 +46,8 @@ void turtle_control::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr m
   turtlelib::Vector2D wheel_vels = robotState.inverseK(body_vel);
 
   auto wheelCmdMsg = nuturtlebot_msgs::msg::WheelCommands();
-  wheelCmdMsg.left_velocity = wheel_vels.x;
-  wheelCmdMsg.right_velocity = wheel_vels.y;
+  wheelCmdMsg.left_velocity = wheel_vels.x / get_parameter("motor_cmd_per_rad_sec").as_double();
+  wheelCmdMsg.right_velocity = wheel_vels.y / get_parameter("motor_cmd_per_rad_sec").as_double();
 
   wheelCommander->publish(wheelCmdMsg);
 }
