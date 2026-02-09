@@ -14,7 +14,7 @@ TEST_CASE("circle node publishes cmd_vel at 100hz", "[circle]") {
   int numreceived = 0;
 
   auto TwistSub =
-    node->create_subscription<geometry_msgs::msg::Twist>("circle/cmd_vel", 10,
+    node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10,
       [&](const geometry_msgs::msg::Twist::SharedPtr) {
         numreceived++;
     });

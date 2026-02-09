@@ -130,7 +130,7 @@ void nusimulator::wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::
   int max_motor_cmd = (int) get_parameter("motor_cmd_max").as_double();
   int left_cmd = std::clamp(msg->left_velocity, -max_motor_cmd, max_motor_cmd);
   int right_cmd = std::clamp(msg->right_velocity, -max_motor_cmd, max_motor_cmd);
-  
+
   left_wheel_vel = left_cmd * get_parameter("motor_cmd_per_rad_sec").as_double();
   right_wheel_vel = right_cmd * get_parameter("motor_cmd_per_rad_sec").as_double();
 }
