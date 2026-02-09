@@ -5,8 +5,6 @@
 namespace turtlelib{
 
 //Helper macro for the stream operator
-#define REMOVE_COMMA if(is.peek() == ',') is.get();
-#define REMOVE_SPACE if(is.peek() == ' ') is.get();
 
 std::istream & operator>>(std::istream & is, Twist2D & tw){
     bool HasDelimiter = false;
@@ -16,7 +14,7 @@ std::istream & operator>>(std::istream & is, Twist2D & tw){
     }
 
     is >> tw.omega;
-    REMOVE_SPACE
+    if(is.peek() == ' ') is.get();
 
     std::string unitstr;
 
@@ -27,11 +25,11 @@ std::istream & operator>>(std::istream & is, Twist2D & tw){
         is >> unitstr;
     }
 
-    REMOVE_COMMA
+    if(is.peek() == ',') is.get();
 
     is >> tw.x;
 
-    REMOVE_COMMA
+    if(is.peek() == ',') is.get();
 
     is >> tw.y;
 
@@ -62,7 +60,7 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
 
     is >> rot;
 
-    REMOVE_SPACE
+    if(is.peek() == ' ') is.get();
 
     std::string unitstr;
     if(is.peek() == 'd'){
@@ -72,13 +70,13 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
         is >> unitstr;
     }
 
-    REMOVE_COMMA
+    if(is.peek() == ',') is.get();
 
     Vector2D offset;
 
     is >> offset.x;
 
-    REMOVE_COMMA
+    if(is.peek() == ',') is.get();
 
     is >> offset.y;
 
