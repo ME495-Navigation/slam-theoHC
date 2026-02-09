@@ -340,16 +340,6 @@ TEST_CASE("Format Transform Output", "[transform]") // Theo, Coulson
     REQUIRE(str3 == "{3 rad, 1, 2}");
 }
 
-TEST_CASE("Transform setters", "[transform]") // Theo, Coulson
-{
-    turtlelib::Transform2D tf1 = turtlelib::Transform2D(turtlelib::Vector2D(1, 2), 3);
-    tf1.setrot(4);
-    tf1.setoffset(turtlelib::Vector2D(5,6));
-
-    REQUIRE(tf1.rotation() == Catch::Approx(4));
-    REQUIRE(tf1.translation() == turtlelib::Vector2D(5,6));
-}
-
 TEST_CASE("Integrate linear twist", "[transform]")
 {
     turtlelib::Twist2D tw = {0.0, 1.0, 0.0}; // Pure linear twist along x-axis

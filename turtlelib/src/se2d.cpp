@@ -61,13 +61,12 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
     double rot;
 
     is >> rot;
-    tf.setrot(rot);
 
     REMOVE_SPACE
 
     std::string unitstr;
     if(is.peek() == 'd'){
-        tf.setrot(deg2rad(rot));
+        rot = (deg2rad(rot));
         is >> unitstr;
     }else if(is.peek() == 'r'){
         is >> unitstr;
@@ -82,7 +81,6 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
     REMOVE_COMMA
 
     is >> offset.y;
-    tf.setoffset(offset);
 
     if(is.peek() == '}'){
             if(HasDelimiter){
@@ -95,6 +93,8 @@ std::istream & operator>>(std::istream & is, Transform2D & tf){
     }else if(HasDelimiter){
         is.setstate(std::ios_base::failbit);
     }
+
+    tf = Transform2D(offset, rot);
 
     return is;
 }

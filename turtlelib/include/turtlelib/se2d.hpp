@@ -114,9 +114,6 @@ namespace turtlelib
         /// \brief get the angular displacement of the transform
         /// \return the angular displacement, in radians
         double rotation() const {return this->rot;}
-
-        void setrot(const double newrot){rot = newrot;}
-        void setoffset(const Vector2D offset){this->offset = offset;}
         
     protected:
         Vector2D offset;
