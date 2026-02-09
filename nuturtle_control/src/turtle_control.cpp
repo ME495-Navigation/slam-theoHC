@@ -23,14 +23,14 @@ turtle_control::turtle_control()
   robotState = turtlelib::DiffDrive(radius, track);
 
   cmdVelSub = this->create_subscription<geometry_msgs::msg::Twist>(
-                "~/cmd_vel", 10,
+                "cmd_vel", 10,
     std::bind(&turtle_control::cmdVelCallback, this, std::placeholders::_1));
   sensorDataSub = this->create_subscription<nuturtlebot_msgs::msg::SensorData>(
-                "~/sensor_data", 10,
+                "sensor_data", 10,
     std::bind(&turtle_control::sensorDataCallback, this, std::placeholders::_1));
 
-  wheelCommander = this->create_publisher<nuturtlebot_msgs::msg::WheelCommands>("~/wheel_cmd", 10);
-  jointStatePub = this->create_publisher<sensor_msgs::msg::JointState>("~/joint_states", 10);
+  wheelCommander = this->create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
+  jointStatePub = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 }
 
 void turtle_control::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
@@ -55,10 +55,10 @@ void turtle_control::sensorDataCallback(const nuturtlebot_msgs::msg::SensorData:
 {
   sensor_msgs::msg::JointState jointStateMsg;
 
-  int ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_int();
+  double ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_double();
 
-  jointStateMsg.name = {"wheel_left_link", "wheel_right_link"};
-  jointStateMsg.position = {(double)msg->left_encoder / (double)ticks_per_rad,
+  jointStateMsg.name = {"wheel_left_joint", "wheel_right_joint"};
+  jointStateMsg.position = {(double)msg->left_encoder / ticks_per_rad,
     (double)msg->right_encoder / (double)ticks_per_rad};                                                                                //publishing 0 for now since I don't know the tick-radian conversion
 
   jointStateMsg.header.stamp = this->now();

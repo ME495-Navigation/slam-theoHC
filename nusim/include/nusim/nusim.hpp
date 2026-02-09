@@ -13,6 +13,7 @@
 #include "visualization_msgs/msg/marker_array.hpp"
 #include <nuturtlebot_msgs/msg/wheel_commands.hpp>
 #include <nuturtlebot_msgs/msg/sensor_data.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <turtlelib/diff_drive.hpp>
 
 using namespace std::chrono_literals;
@@ -34,6 +35,7 @@ private:
 
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensordatapub;
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheelcmdsub;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointpub;
 
   turtlelib::DiffDrive robotState;
 

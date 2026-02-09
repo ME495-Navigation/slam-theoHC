@@ -24,10 +24,10 @@ odometry::odometry()
   }
 
   jsSub = this->create_subscription<sensor_msgs::msg::JointState>(
-                "~/joint_states", 10,
+                "joint_states", 10,
                  std::bind(&odometry::odomCallback, this, std::placeholders::_1));
 
-  odomPub = this->create_publisher<nav_msgs::msg::Odometry>("~/odom", 10);
+  odomPub = this->create_publisher<nav_msgs::msg::Odometry>("odom", 10);
 
   robotState = turtlelib::DiffDrive(get_parameter("wheel_radius").as_double(),
                                       get_parameter("track_width").as_double());
@@ -35,7 +35,7 @@ odometry::odometry()
   tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
   initPoseServ = this->create_service<nuturtle_control::srv::OdomConfig>(
-        "~/initial_pose",
+        "initial_pose",
         std::bind(&odometry::initPoseCallback, this, std::placeholders::_1, std::placeholders::_2));
 }
 

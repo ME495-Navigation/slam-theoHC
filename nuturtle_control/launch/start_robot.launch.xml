@@ -31,8 +31,9 @@
 
     <!-- robot argument handling -->
     <group if="$(eval '\'$(var robot)\' == \'nusim\'')">
-        <node pkg="nusim" exec="nusim">
+        <node pkg="nusim" exec="nusimulator">
             <param from="$(var diff_params)"/>
+            <remap from="joint_states" to="red/joint_states"/>
         </node>
 
         <node pkg="nuturtle_control" exec="odometry">
@@ -81,13 +82,13 @@
         <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.xml">
             <arg name="use_rviz" value="false"/>
             <arg name="color" value="blue"/>
-            <arg name="use_jsp" value="none"/>
+            <arg name="use_jsp" value="false"/>
         </include>
 
         <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.xml" if="$(eval '\'$(var robot)\' == \'nusim\'')">
             <arg name="use_rviz" value="false"/>
             <arg name="color" value="red"/>
-            <arg name="use_jsp" value="none"/>
+            <arg name="use_jsp" value="false"/>
         </include>
     </group>
 

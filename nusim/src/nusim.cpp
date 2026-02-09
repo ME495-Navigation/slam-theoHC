@@ -1,6 +1,5 @@
 #include <nusim/nusim.hpp>
 #include <algorithm>
-#include <numbers>
 
 nusimulator::nusimulator()
 : Node("nusimulator"), count(0)
@@ -50,10 +49,11 @@ nusimulator::nusimulator()
   obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles",
         PeristentQoS);
       //Publishers for robot state
-  sensordatapub = this->create_publisher<nuturtlebot_msgs::msg::SensorData>("~/sensor_data", 10);
+  sensordatapub = this->create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+  jointpub = this->create_publisher<sensor_msgs::msg::JointState>("red/joint_states", 10);
 
         //SUBSCRIBERS
-  wheelcmdsub = this->create_subscription<nuturtlebot_msgs::msg::WheelCommands>("~/wheel_commands",
+  wheelcmdsub = this->create_subscription<nuturtlebot_msgs::msg::WheelCommands>("red/wheel_cmd",
         10, std::bind(&nusimulator::wheelcmd_callback, this, std::placeholders::_1));
 
         //TIMERS
@@ -76,11 +76,11 @@ void nusimulator::timer_callback()
   this->timesteppub->publish(timemsg);
 
     //Update robot state
-  double dt = 1000.0 / get_parameter("rate").as_double();
+  double dt = (double) get_parameter("rate").as_int() / 1000.0;
 
   turtlelib::Vector2D wheel_positions = robotState.get_wheels();
-  wheel_positions.x += turtlelib::normalize_angle(left_wheel_vel * dt);
-  wheel_positions.y += turtlelib::normalize_angle(right_wheel_vel * dt);
+  wheel_positions.x = turtlelib::normalize_angle(wheel_positions.x + left_wheel_vel * dt);
+  wheel_positions.y = turtlelib::normalize_angle(wheel_positions.y + right_wheel_vel * dt);
 
   robotState.forwardK(wheel_positions);
 
@@ -88,9 +88,18 @@ void nusimulator::timer_callback()
   auto sensormsg = nuturtlebot_msgs::msg::SensorData();
   sensormsg.stamp = this->get_clock()->now();
 
-  sensormsg.left_encoder = static_cast<int>((std::numbers::pi + wheel_positions.x) * encoder_ticks_per_rad);
-  sensormsg.right_encoder = static_cast<int>((std::numbers::pi + wheel_positions.y) * encoder_ticks_per_rad);
+  sensormsg.left_encoder = static_cast<int>((wheel_positions.x) * encoder_ticks_per_rad);
+  sensormsg.right_encoder = static_cast<int>((wheel_positions.y) * encoder_ticks_per_rad);
   sensordatapub->publish(sensormsg);
+
+    //Publish joint states for red robot
+  auto jointmsg = sensor_msgs::msg::JointState();
+  jointmsg.header.stamp = this->get_clock()->now();
+  jointmsg.name.push_back("wheel_left_joint");
+  jointmsg.name.push_back("wheel_right_joint");
+  jointmsg.position.push_back(wheel_positions.x);
+  jointmsg.position.push_back(wheel_positions.y);
+  jointpub->publish(jointmsg);
 
     //Publish transform
   geometry_msgs::msg::TransformStamped t;
@@ -118,7 +127,7 @@ void nusimulator::timer_callback()
 
 void nusimulator::wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg)
 {
-  int max_motor_cmd = get_parameter("motor_cmd_max").as_int();
+  int max_motor_cmd = (int) get_parameter("motor_cmd_max").as_double();
   int left_cmd = std::clamp(msg->left_velocity, -max_motor_cmd, max_motor_cmd);
   int right_cmd = std::clamp(msg->right_velocity, -max_motor_cmd, max_motor_cmd);
   

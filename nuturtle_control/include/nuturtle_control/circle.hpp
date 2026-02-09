@@ -11,7 +11,7 @@ public:
   circle();
 
 private:
-  float angularVel = 0.2;
+  float angularVel = 0.75;
   float radius = 0.3;
 
   bool moving = false;

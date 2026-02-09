@@ -6,12 +6,12 @@ circle::circle()
 {
   declare_parameter<int>("frequency", 100);
 
-  velPub = this->create_publisher<geometry_msgs::msg::Twist>("~/cmd_vel", 10);
+  velPub = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
   startServ = this->create_service<std_srvs::srv::Empty>(
-        "~/start_circle",
+        "stop",
         std::bind(&circle::startCallback, this, std::placeholders::_1, std::placeholders::_2));
   reverseServ = this->create_service<std_srvs::srv::Empty>(
-        "~/reverse_circle",
+        "reverse",
         std::bind(&circle::reverseCallback, this, std::placeholders::_1, std::placeholders::_2));
 
   controlTimer = this->create_timer(

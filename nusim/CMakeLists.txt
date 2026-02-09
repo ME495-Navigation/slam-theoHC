@@ -16,6 +16,7 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(nuturtlebot_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 add_executable(nusimulator src/nusim.cpp)
 target_include_directories(nusimulator PRIVATE include)
@@ -30,6 +31,7 @@ target_link_libraries(
   ${geometry_msgs_TARGETS}
   ${visualization_msgs_TARGETS}
   ${nuturtlebot_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
 )
 
 install(TARGETS

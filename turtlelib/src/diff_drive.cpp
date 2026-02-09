@@ -27,6 +27,9 @@ namespace turtlelib{
         twist = body_twist;
         Transform2D delta_transform = integrate_twist(body_twist);
         pose *= delta_transform;
+
+        wheel1_angle = new_wheel1;
+        wheel2_angle = new_wheel2;
     }
 
     Vector2D DiffDrive::inverseK(const Twist2D vel) const{
