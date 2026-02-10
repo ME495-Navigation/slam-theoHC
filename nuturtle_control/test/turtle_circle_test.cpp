@@ -4,6 +4,7 @@
 #include <catch_ros2/catch_ros2.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 
+// ########### begin_citation [16] ###########
 TEST_CASE("circle node publishes cmd_vel at 100hz", "[circle]") {
   auto node = rclcpp::Node::make_shared("turtle_circle_test_node");
 
@@ -29,3 +30,4 @@ TEST_CASE("circle node publishes cmd_vel at 100hz", "[circle]") {
 
   REQUIRE(numreceived / TEST_DURATION == Catch::Approx(100.0).margin(10.0));
 }
+// ########### end_citation [16] ###########

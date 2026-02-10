@@ -7,6 +7,7 @@
 #include <tf2_ros/buffer.h>
 #include <sensor_msgs/msg/joint_state.hpp>
 
+// ########### begin_citation [16] ###########
 TEST_CASE("Test initial pose service of the odometry node", "[odometry]") {
     auto node = rclcpp::Node::make_shared("turtle_odom_test_node");
 
@@ -86,3 +87,4 @@ TEST_CASE("Test that transform between base_footprint and odom exists", "[odomet
     }
     REQUIRE(got_transform);
 }
+// ########### end_citation [16] ###########

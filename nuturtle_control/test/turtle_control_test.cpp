@@ -7,7 +7,7 @@
 #include <nuturtlebot_msgs/msg/sensor_data.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 
-
+// ########### begin_citation [16] ###########
 TEST_CASE("turtle_control node can process pure translational cmd_vel", "[turtle_control]") {
 
     auto node = rclcpp::Node::make_shared("integration_test_node");
@@ -127,3 +127,4 @@ TEST_CASE("encoder data in sensor_msg is properly converted to join states", "[t
     rclcpp::spin_some(node);
     }
 }
+// ########### end_citation [16] ###########
