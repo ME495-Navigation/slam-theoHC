@@ -157,10 +157,4 @@ namespace turtlelib{
     double dot(const Vector2D & a, const Vector2D & b){
         return a * b;
     }
-
-    constexpr Vector2D normalize_angle(Vector2D in){
-        in.x = normalize_angle(in.x);
-        in.y = normalize_angle(in.y);
-        return in;
-    }
 }

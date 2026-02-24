@@ -222,7 +222,7 @@ void nusimulator::fake_sensor_tick_callback()
 
     offset += noise;
 
-    auto obst = create_obstacle_marker(offset.x, offset.y, color, 0, "red/base_footprint", "fake_sensor");
+    auto obst = create_obstacle_marker(offset.x, offset.y, color, action, "red/base_footprint", "fake_sensor");
     obst.id = i;
     obsts.markers.push_back(obst);
   }

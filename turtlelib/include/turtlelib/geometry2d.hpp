@@ -9,6 +9,7 @@
 // requiring the inclusion of <iostream>, which is a big header file
 #include <iosfwd>
 #include <format>
+#include "turtlelib/angle.hpp"
 
 namespace turtlelib
 {
@@ -181,7 +182,11 @@ namespace turtlelib
     /// \brief Treat the components of the vector as angles and wrap them to [-pi, pi)
     /// \param in The vector to normalize
     /// \return The normalized vector.
-    constexpr Vector2D normalize_angle(Vector2D in);
+    constexpr Vector2D normalize_angle(Vector2D in){
+        in.x = normalize_angle(in.x);
+        in.y = normalize_angle(in.y);
+        return in;
+    }
 }
 /// \brief A Formatter for 2D points
 /// The output is "(x, y)"
