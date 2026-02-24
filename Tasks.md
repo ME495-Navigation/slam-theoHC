@@ -37,3 +37,6 @@ Task E.1
 
 Task D.3
 
+Task C.9
+Task C.11
+Task C.10

@@ -177,8 +177,12 @@ namespace turtlelib
     /// \param b Second vector
     /// \return The angle between the two vectors in radians
     double angle(const Vector2D & a, const Vector2D & b);
-}
 
+    /// \brief Treat the components of the vector as angles and wrap them to [-pi, pi)
+    /// \param in The vector to normalize
+    /// \return The normalized vector.
+    constexpr Vector2D normalize_angle(Vector2D in);
+}
 /// \brief A Formatter for 2D points
 /// The output is "(x, y)"
 /// All floating-point format specifiers are honored and applied to both x and y.

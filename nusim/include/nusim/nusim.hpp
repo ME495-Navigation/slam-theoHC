@@ -26,12 +26,14 @@ public:
 
 private:
   rclcpp::TimerBase::SharedPtr simtick;
+  rclcpp::TimerBase::SharedPtr fake_sensor_tick;
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timesteppub;
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr resetsrv;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
 
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr wallpub;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstaclepub;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_obstaclepub;
 
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensordatapub;
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheelcmdsub;
@@ -47,7 +49,10 @@ private:
   const float wall_thickness = .1;
 
                 /// \brief Timer callback to publish timestep and transform
-  void timer_callback();
+  void sim_tick_callback();
+
+                /// \brief Check for collisions and update robot pose if collision occurs
+  void collision_check();
 
   void wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg);
 
@@ -66,4 +71,17 @@ private:
                 /// \param side - if true, generate vertical walls; if false, generate horizontal walls
                 /// \return a Marker representing the wall pair
   visualization_msgs::msg::Marker genWallPair(bool side);
+
+  // ##### begin_citation [23] #####
+                /// \brief Create an obstacle marker with specified properties
+                /// \param x - x position of obstacle
+                /// \param y - y position of obstacle
+                /// \param color - color of the obstacle marker
+                /// \param action - action type for the marker (0 = add/modify, 1 = delete, etc.)
+                /// \return a Marker representing the obstacle
+  visualization_msgs::msg::Marker create_obstacle_marker(double x, double y, 
+    std_msgs::msg::ColorRGBA color, int action, std::string frame_id, std::string ns = "");
+  // ##### end_citation [23] #####
+
+  void fake_sensor_tick_callback();
 };

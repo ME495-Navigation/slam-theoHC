@@ -1,5 +1,7 @@
 #include <nusim/nusim.hpp>
 #include <algorithm>
+#include <random>
+#include "std_msgs/msg/color_rgba.hpp"
 
 nusimulator::nusimulator()
 : Node("nusimulator"), count(0)
@@ -21,6 +23,14 @@ nusimulator::nusimulator()
   declare_parameter<double>("encoder_ticks_per_rad");
   declare_parameter<double>("motor_cmd_max");
   declare_parameter<double>("motor_cmd_per_rad_sec");
+  declare_parameter<double>("collision_radius", 0.1);
+
+  declare_parameter("max_range", 5.0f);
+
+  declare_parameter("input_noise", 0.0f);
+  declare_parameter("slip_fraction", 0.0f);
+
+  declare_parameter("basic_sensor_variance", 0.0f);
 
   double x = get_parameter("x0").as_double();
   double y = get_parameter("y0").as_double();
@@ -48,6 +58,10 @@ nusimulator::nusimulator()
         PeristentQoS);
   obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/real_obstacles",
         PeristentQoS);
+  
+  fake_obstaclepub = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/fake_sensor",
+        PeristentQoS);
+
       // Publishes the wheel position of the simulated robot
   sensordatapub = this->create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
       // Publishes the joint states of the simulated robot
@@ -59,19 +73,30 @@ nusimulator::nusimulator()
         10, std::bind(&nusimulator::wheelcmd_callback, this, std::placeholders::_1));
 
         //TIMERS
-  simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::timer_callback, this));
+  simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::sim_tick_callback, this));
+  
+  fake_sensor_tick = this->create_wall_timer(200ms, std::bind(&nusimulator::collision_check, this));
 
         //SERVICES
         // Resets the simulation
   resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset",
         std::bind(&nusimulator::reset_callback,
                 this, std::placeholders::_1, std::placeholders::_2));
-
   publish_real_walls();
   publish_obstacle();
 }
 
-void nusimulator::timer_callback()
+std::mt19937 & get_random()
+{
+    // static variables inside a function are created once and persist for the remainder of the program
+    static std::random_device rd{}; 
+    static std::mt19937 mt{rd()};
+    // we return a reference to the pseudo-random number genrator object. This is always the
+    // same object every time get_random is called
+    return mt;
+}
+
+void nusimulator::sim_tick_callback()
 {
     //Publish current timestep
   auto timemsg = std_msgs::msg::UInt64();
@@ -81,18 +106,25 @@ void nusimulator::timer_callback()
     //Update robot state
   double dt = (double) get_parameter("rate").as_int() / 1000.0;
 
+  turtlelib::Vector2D wheel_vels = {left_wheel_vel * dt, right_wheel_vel * dt};
+
   turtlelib::Vector2D wheel_positions = robotState.get_wheels();
-  wheel_positions.x = turtlelib::normalize_angle(wheel_positions.x + left_wheel_vel * dt);
-  wheel_positions.y = turtlelib::normalize_angle(wheel_positions.y + right_wheel_vel * dt);
+  turtlelib::Vector2D reported_wheel_positions = turtlelib::normalize_angle(reported_wheel_positions + wheel_vels);
 
-  robotState.forwardK(wheel_positions);
+  double slip_range = get_parameter("slip_fraction").as_double();
+  std::uniform_real_distribution d(-slip_range, slip_range);
+  turtlelib::Vector2D slip = {d(get_random()), d(get_random())};
+  turtlelib::Vector2D update_wheel_positions = wheel_positions + wheel_vels * (turtlelib::Vector2D(1, 1) + slip);
 
+  robotState.forwardK(update_wheel_positions);
+
+    //Publish simulated sensor data
   double encoder_ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_double();
   auto sensormsg = nuturtlebot_msgs::msg::SensorData();
   sensormsg.stamp = this->get_clock()->now();
 
-  sensormsg.left_encoder = static_cast<int>((wheel_positions.x) * encoder_ticks_per_rad);
-  sensormsg.right_encoder = static_cast<int>((wheel_positions.y) * encoder_ticks_per_rad);
+  sensormsg.left_encoder = static_cast<int>((reported_wheel_positions.x) * encoder_ticks_per_rad);
+  sensormsg.right_encoder = static_cast<int>((reported_wheel_positions.y) * encoder_ticks_per_rad);
   sensordatapub->publish(sensormsg);
 
     //Publish joint states for red robot
@@ -100,8 +132,8 @@ void nusimulator::timer_callback()
   jointmsg.header.stamp = this->get_clock()->now();
   jointmsg.name.push_back("wheel_left_joint");
   jointmsg.name.push_back("wheel_right_joint");
-  jointmsg.position.push_back(wheel_positions.x);
-  jointmsg.position.push_back(wheel_positions.y);
+  jointmsg.position.push_back(reported_wheel_positions.x);
+  jointmsg.position.push_back(reported_wheel_positions.y);
   jointpub->publish(jointmsg);
 
     //Publish transform
@@ -128,14 +160,72 @@ void nusimulator::timer_callback()
   tf_broadcaster->sendTransform(t);
 }
 
+void nusimulator::collision_check()
+{
+  double robot_radius = get_parameter("collision_radius").as_double();
+  double obstacle_radius = get_parameter("obstacles.r").as_double();
+  double collision_radius = robot_radius + obstacle_radius;
+
+  std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
+  std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
+
+  turtlelib::Vector2D robotPos = robotState.get_pose().translation();
+
+  for(size_t i = 0; i < xspots.size(); i++) {
+    turtlelib::Vector2D offset = robotPos - turtlelib::Vector2D(xspots.at(i), yspots.at(i));
+    double dist = turtlelib::magnitude(offset);
+    if(dist < collision_radius) {
+      turtlelib::Vector2D correction = turtlelib::normalize(offset) * (collision_radius);
+      robotState.set_pose({robotPos + correction, robotState.get_pose().rotation()});
+    }
+  }
+}
+
 void nusimulator::wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg)
 {
   int max_motor_cmd = (int) get_parameter("motor_cmd_max").as_double();
   int left_cmd = std::clamp(msg->left_velocity, -max_motor_cmd, max_motor_cmd);
   int right_cmd = std::clamp(msg->right_velocity, -max_motor_cmd, max_motor_cmd);
 
-  left_wheel_vel = left_cmd * get_parameter("motor_cmd_per_rad_sec").as_double();
-  right_wheel_vel = right_cmd * get_parameter("motor_cmd_per_rad_sec").as_double();
+  double input_variance = get_parameter("input_noise").as_double();
+
+  std::normal_distribution<> d(0, input_variance);
+  double noise_L = d(get_random());
+  double noise_R = d(get_random());
+  left_wheel_vel = left_cmd * get_parameter("motor_cmd_per_rad_sec").as_double() + noise_L;
+  right_wheel_vel = right_cmd * get_parameter("motor_cmd_per_rad_sec").as_double() + noise_R;
+}
+
+void nusimulator::fake_sensor_tick_callback()
+{
+  std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
+  std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
+
+  turtlelib::Vector2D robotPos = robotState.get_pose().translation();
+
+  auto obsts = visualization_msgs::msg::MarkerArray();
+
+  for(size_t i = 0; i < xspots.size(); i++) {
+    turtlelib::Vector2D offset = turtlelib::Vector2D(xspots.at(i), yspots.at(i)) - robotPos;
+    double dist = turtlelib::magnitude(offset);
+
+    auto color = std_msgs::msg::ColorRGBA();
+    color.r = 1.0;
+    color.g = 1.0;
+    color.b = 0.0;
+    color.a = 1.0;
+
+    int action = dist < get_parameter("max_range").as_double() ? 0 : 2; // add/modify if in range, delete if out of range
+
+    std::normal_distribution<double> d(0, get_parameter("basic_sensor_variance").as_double());
+    turtlelib::Vector2D noise = {d(get_random()), d(get_random())};
+
+    offset += noise;
+
+    auto obst = create_obstacle_marker(offset.x, offset.y, color, 0, "red/base_footprint", "fake_sensor");
+    obst.id = i;
+    obsts.markers.push_back(obst);
+  }
 }
 
 void nusimulator::reset_callback(
@@ -153,13 +243,33 @@ void nusimulator::reset_callback(
   robotState.set_pose({theta, x, y});
 }
 
+// ##### begin_citation [23] #####
+visualization_msgs::msg::Marker nusimulator::create_obstacle_marker(double x, double y,
+  std_msgs::msg::ColorRGBA color, int action, std::string frame_id, std::string ns)
+{
+  double rad = get_parameter("obstacles.r").as_double();
+  auto obst = visualization_msgs::msg::Marker();
+  obst.header.stamp = this->get_clock()->now();
+  obst.header.frame_id = frame_id;
+  obst.type = obst.CYLINDER;
+  obst.action = action;
+  obst.color = color;
+  obst.scale.x = 2 * rad;
+  obst.scale.y = 2 * rad;
+  obst.scale.z = .25;
+  obst.pose.position.x = x;
+  obst.pose.position.y = y;
+  obst.ns = ns;
+  return obst;
+}
+// ##### end_citation [23] #####
+
 void nusimulator::publish_obstacle()
 {
   auto obsts = visualization_msgs::msg::MarkerArray();
 
   std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
   std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
-  double rad = get_parameter("obstacles.r").as_double();
 
   if(xspots.size() != yspots.size()) {
     RCLCPP_ERROR(get_logger(),
@@ -168,26 +278,14 @@ void nusimulator::publish_obstacle()
   }
 
   for(size_t i = 0; i < xspots.size(); i++) {
-                //setup
-    auto obst = visualization_msgs::msg::Marker();
-    obst.header.stamp = this->get_clock()->now();
-    obst.header.frame_id = "nusim/world";
+    auto color = std_msgs::msg::ColorRGBA();
+    color.r = 1.0;
+    color.g = 0.0;
+    color.b = 0.0;
+    color.a = 1.0;
+
+    auto obst = create_obstacle_marker(xspots.at(i), yspots.at(i), color, 0, "nusim/world");
     obst.id = i;
-    obst.type = obst.CYLINDER;
-    obst.action = 0;
-                //color
-    obst.color.r = 1;
-    obst.color.b = 0;
-    obst.color.g = 0;
-    obst.color.a = 1;
-                //scale
-    obst.scale.x = 2 * rad;
-    obst.scale.y = 2 * rad;
-    obst.scale.z = .25;
-                //position
-    obst.pose.position.x = xspots.at(i);
-    obst.pose.position.y = yspots.at(i);
-                //add to array
     obsts.markers.push_back(obst);
   }
 
