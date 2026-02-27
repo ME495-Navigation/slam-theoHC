@@ -67,6 +67,7 @@ nusimulator::nusimulator()
       // Publishes the joint states of the simulated robot
   jointpub = this->create_publisher<sensor_msgs::msg::JointState>("red/joint_states", 10);
 
+  laserscanpub = this->create_publisher<sensor_msgs::msg::LaserScan>("red/lidar", 10);
         //SUBSCRIBERS
         // Subscriber to wheel commands for simulated robot
   wheelcmdsub = this->create_subscription<nuturtlebot_msgs::msg::WheelCommands>("red/wheel_cmd",
@@ -84,8 +85,6 @@ nusimulator::nusimulator()
                 this, std::placeholders::_1, std::placeholders::_2));
   publish_real_walls();
   publish_obstacle();
-
-  RCLCPP_INFO(get_logger(), "Obstacle radius: %f", get_parameter("obstacles.r").as_double() + get_parameter("collision_radius").as_double());
 }
 
 std::mt19937 & get_random()
@@ -233,6 +232,8 @@ void nusimulator::fake_sensor_tick_callback()
     obst.id = i;
     obsts.markers.push_back(obst);
   }
+
+  fake_obstaclepub->publish(obsts);
 }
 
 void nusimulator::reset_callback(
