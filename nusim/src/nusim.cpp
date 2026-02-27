@@ -4,7 +4,7 @@
 #include "std_msgs/msg/color_rgba.hpp"
 
 nusimulator::nusimulator()
-: Node("nusimulator"), count(0)
+: Node("nusimulator"), robotState(0.0, 0.0), left_wheel_vel(0.0), right_wheel_vel(0.0), reported_wheel_positions(0.0, 0.0), count(0)
 {
   declare_parameter("rate", 10);
   declare_parameter("x0", 0.0);
@@ -106,15 +106,17 @@ void nusimulator::sim_tick_callback()
     //Update robot state
   double dt = (double) get_parameter("rate").as_int() / 1000.0;
 
-  turtlelib::Vector2D wheel_vels = {left_wheel_vel * dt, right_wheel_vel * dt};
-
-  turtlelib::Vector2D wheel_positions = robotState.get_wheels();
-  turtlelib::Vector2D reported_wheel_positions = turtlelib::normalize_angle(reported_wheel_positions + wheel_vels);
-
   double slip_range = get_parameter("slip_fraction").as_double();
   std::uniform_real_distribution d(-slip_range, slip_range);
   turtlelib::Vector2D slip = {d(get_random()), d(get_random())};
-  turtlelib::Vector2D update_wheel_positions = wheel_positions + wheel_vels * (turtlelib::Vector2D(1, 1) + slip);
+
+  turtlelib::Vector2D clean_wheel_vels = {left_wheel_vel * dt, right_wheel_vel * dt};
+  turtlelib::Vector2D noise_wheel_vels = {left_wheel_vel * dt * (1 + slip.x), right_wheel_vel * dt * (1 + slip.y)};
+
+  turtlelib::Vector2D wheel_positions = robotState.get_wheels();
+  reported_wheel_positions = turtlelib::normalize_angle(reported_wheel_positions + clean_wheel_vels);
+  
+  turtlelib::Vector2D update_wheel_positions = turtlelib::normalize_angle(wheel_positions + noise_wheel_vels);; //wheel_positions + wheel_vels * (turtlelib::Vector2D(1, 1) + slip);
 
   robotState.forwardK(update_wheel_positions);
 

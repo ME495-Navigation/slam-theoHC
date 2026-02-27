@@ -43,6 +43,7 @@ private:
 
   double left_wheel_vel;
   double right_wheel_vel;
+  turtlelib::Vector2D reported_wheel_positions; //the wheel positions that we report to the user through the sensor data topic. This may differ from the actual wheel positions due to noise.
 
   int count;
 
