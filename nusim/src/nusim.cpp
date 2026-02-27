@@ -23,7 +23,7 @@ nusimulator::nusimulator()
   declare_parameter<double>("encoder_ticks_per_rad");
   declare_parameter<double>("motor_cmd_max");
   declare_parameter<double>("motor_cmd_per_rad_sec");
-  declare_parameter<double>("collision_radius", 0.1);
+  declare_parameter<double>("collision_radius", 0.08);
 
   declare_parameter("max_range", 5.0f);
 
@@ -75,7 +75,7 @@ nusimulator::nusimulator()
         //TIMERS
   simtick = this->create_wall_timer(timer_period, std::bind(&nusimulator::sim_tick_callback, this));
   
-  fake_sensor_tick = this->create_wall_timer(200ms, std::bind(&nusimulator::collision_check, this));
+  fake_sensor_tick = this->create_wall_timer(200ms, std::bind(&nusimulator::fake_sensor_tick_callback, this));
 
         //SERVICES
         // Resets the simulation
@@ -84,6 +84,8 @@ nusimulator::nusimulator()
                 this, std::placeholders::_1, std::placeholders::_2));
   publish_real_walls();
   publish_obstacle();
+
+  RCLCPP_INFO(get_logger(), "Obstacle radius: %f", get_parameter("obstacles.r").as_double() + get_parameter("collision_radius").as_double());
 }
 
 std::mt19937 & get_random()
@@ -119,6 +121,8 @@ void nusimulator::sim_tick_callback()
   turtlelib::Vector2D update_wheel_positions = turtlelib::normalize_angle(wheel_positions + noise_wheel_vels);; //wheel_positions + wheel_vels * (turtlelib::Vector2D(1, 1) + slip);
 
   robotState.forwardK(update_wheel_positions);
+
+  collision_check();
 
     //Publish simulated sensor data
   double encoder_ticks_per_rad = get_parameter("encoder_ticks_per_rad").as_double();
@@ -174,11 +178,12 @@ void nusimulator::collision_check()
   turtlelib::Vector2D robotPos = robotState.get_pose().translation();
 
   for(size_t i = 0; i < xspots.size(); i++) {
-    turtlelib::Vector2D offset = robotPos - turtlelib::Vector2D(xspots.at(i), yspots.at(i));
+    turtlelib::Vector2D obstaclePos = {xspots.at(i), yspots.at(i)};
+    turtlelib::Vector2D offset = robotPos - obstaclePos;
     double dist = turtlelib::magnitude(offset);
     if(dist < collision_radius) {
       turtlelib::Vector2D correction = turtlelib::normalize(offset) * (collision_radius);
-      robotState.set_pose({robotPos + correction, robotState.get_pose().rotation()});
+      robotState.set_pose({obstaclePos + correction, robotState.get_pose().rotation()});
     }
   }
 }

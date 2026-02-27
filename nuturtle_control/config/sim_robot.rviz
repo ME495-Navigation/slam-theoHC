@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /MarkerArray3
       Splitter Ratio: 0.5
     Tree Height: 693
   - Class: rviz_common/Selection
@@ -262,6 +263,18 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /nusimulator/real_obstacles
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /nusimulator/fake_sensor
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -308,25 +321,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 11.517353057861328
+      Distance: 0.8756974339485168
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: -0.6476000547409058
+        Y: -0.8478714227676392
+        Z: 0.02604416385293007
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0503978729248047
+      Pitch: 1.4803974628448486
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.168581962585449
+      Yaw: 5.9035820960998535
     Saved: ~
 Window Geometry:
   Displays:
