@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <random>
 #include "std_msgs/msg/color_rgba.hpp"
+#include "turtlelib/angle.hpp"
 
 nusimulator::nusimulator()
 : Node("nusimulator"), robotState(0.0, 0.0), left_wheel_vel(0.0), right_wheel_vel(0.0), reported_wheel_positions(0.0, 0.0), count(0)
@@ -17,6 +18,11 @@ nusimulator::nusimulator()
   declare_parameter("obstacles.x", std::vector<double>());
   declare_parameter("obstacles.y", std::vector<double>());
   declare_parameter("obstacles.r", 3.0);
+
+  declare_parameter("lidar_min_range", 0.12);
+  declare_parameter("lidar_max_range", 3.5);
+  declare_parameter("lidar_num_points", 360);
+  declare_parameter("lidar_noise_stddev", 0.0);
 
   declare_parameter<double>("wheel_radius");
   declare_parameter<double>("track_width");
@@ -83,6 +89,8 @@ nusimulator::nusimulator()
   resetsrv = this->create_service<std_srvs::srv::Empty>("~/reset",
         std::bind(&nusimulator::reset_callback,
                 this, std::placeholders::_1, std::placeholders::_2));
+
+  //Publish visualization of walls and obstacles
   publish_real_walls();
   publish_obstacle();
 }
@@ -204,6 +212,7 @@ void nusimulator::wheelcmd_callback(const nuturtlebot_msgs::msg::WheelCommands::
 
 void nusimulator::fake_sensor_tick_callback()
 {
+  //Publishing the fake markers
   std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
   std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
 
@@ -234,6 +243,65 @@ void nusimulator::fake_sensor_tick_callback()
   }
 
   fake_obstaclepub->publish(obsts);
+
+  //Fake laser scan
+  turtlelib::Transform2D robotPose = robotState.get_pose();
+
+  std::vector<float> distances;
+  std::vector<float> intensities = std::vector<float>(get_parameter("lidar_num_points").as_int(), 0.0); // dummy intensities
+
+  //first generate points in the robot frame between min and max range
+  for(int i = 0; i < get_parameter("lidar_num_points").as_int(); i++) {
+    double angle = i * 2 * M_PI / get_parameter("lidar_num_points").as_int();
+
+    turtlelib::Vector2D point = {std::cos(angle), std::sin(angle)};
+
+    turtlelib::Vector2D near_point = point * get_parameter("lidar_min_range").as_double();
+    turtlelib::Vector2D far_point = point * get_parameter("lidar_max_range").as_double();
+
+    // transform into world space using inverse of robotpose
+    turtlelib::Transform2D inverseRobotPose = robotPose.inv();
+    turtlelib::Vector2D near_point_world = inverseRobotPose(near_point);
+    turtlelib::Vector2D far_point_world = inverseRobotPose(far_point);
+
+    // check for intersection with each obstacle, and if it intersects, move the point to the intersection point
+    std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
+    std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
+    double obstacle_radius = get_parameter("obstacles.r").as_double();
+
+    for(size_t j = 0; j < xspots.size(); j++) {
+      turtlelib::Vector2D obstaclePos = {xspots.at(j), yspots.at(j)};
+      turtlelib::Vector2D d = far_point_world - near_point_world;
+
+      double t = turtlelib::dot(obstaclePos - near_point_world, d) / turtlelib::dot(d, d);
+      t = std::clamp(t, 0.0, 1.0);
+      turtlelib::Vector2D closest_point = near_point_world + d * t;
+      double dist_to_obstacle = turtlelib::magnitude(closest_point - obstaclePos);
+
+      if(dist_to_obstacle < obstacle_radius) {
+        // the ray intersects the obstacle, move the far point to the closest point minus the radius
+        distances.push_back(turtlelib::magnitude(closest_point - robotPose.translation()) - obstacle_radius);
+      }
+      else {
+        // no intersection, use the original far point
+        distances.push_back(turtlelib::magnitude(far_point_world - robotPose.translation()));
+      }
+    }
+  }
+
+  auto scanmsg = sensor_msgs::msg::LaserScan();
+  scanmsg.header.stamp = this->get_clock()->now();
+  scanmsg.header.frame_id = "red/base_footprint";
+  scanmsg.angle_min = 0.0;
+  scanmsg.angle_max = 2 * M_PI;
+  scanmsg.angle_increment = 2 * M_PI / get_parameter("lidar_num_points").as_int();
+  scanmsg.time_increment = 0.0;
+  scanmsg.scan_time = 0.0;
+  scanmsg.range_min = get_parameter("lidar_min_range").as_double();
+  scanmsg.range_max = get_parameter("lidar_max_range").as_double();
+  scanmsg.ranges = distances;
+  scanmsg.intensities = intensities;
+  laserscanpub->publish(scanmsg);
 }
 
 void nusimulator::reset_callback(
