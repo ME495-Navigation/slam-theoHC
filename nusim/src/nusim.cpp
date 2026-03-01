@@ -217,11 +217,13 @@ void nusimulator::fake_sensor_tick_callback()
   std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
 
   turtlelib::Vector2D robotPos = robotState.get_pose().translation();
+  turtlelib::Transform2D robotRotpos = {robotState.get_pose().rotation(), 0, 0};
 
   auto obsts = visualization_msgs::msg::MarkerArray();
 
   for(size_t i = 0; i < xspots.size(); i++) {
     turtlelib::Vector2D offset = turtlelib::Vector2D(xspots.at(i), yspots.at(i)) - robotPos;
+    offset = robotRotpos.inv()(offset); // transform into robot frame
     double dist = turtlelib::magnitude(offset);
 
     auto color = std_msgs::msg::ColorRGBA();
