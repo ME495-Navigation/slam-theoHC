@@ -252,6 +252,8 @@ void nusimulator::fake_sensor_tick_callback()
   std::vector<float> distances;
   std::vector<float> intensities = std::vector<float>(get_parameter("lidar_num_points").as_int(), 0.0); // dummy intensities
 
+  double r = get_parameter("obstacles.r").as_double();
+
   //first generate points in the robot frame between min and max range
   for(int i = 0; i < get_parameter("lidar_num_points").as_int(); i++) {
     double angle = i * 2 * M_PI / get_parameter("lidar_num_points").as_int();
@@ -261,36 +263,46 @@ void nusimulator::fake_sensor_tick_callback()
     turtlelib::Vector2D near_point = point * get_parameter("lidar_min_range").as_double();
     turtlelib::Vector2D far_point = point * get_parameter("lidar_max_range").as_double();
 
-    // transform into world space using inverse of robotpose
-    turtlelib::Transform2D inverseRobotPose = robotPose.inv();
-    turtlelib::Vector2D near_point_world = inverseRobotPose(near_point);
-    turtlelib::Vector2D far_point_world = inverseRobotPose(far_point);
-
-    // check for intersection with each obstacle, and if it intersects, move the point to the intersection point
-    std::vector<double> xspots = get_parameter("obstacles.x").as_double_array();
-    std::vector<double> yspots = get_parameter("obstacles.y").as_double_array();
-    double obstacle_radius = get_parameter("obstacles.r").as_double();
-
+    double min_distance = get_parameter("lidar_max_range").as_double() * .99;
     for(size_t j = 0; j < xspots.size(); j++) {
-      turtlelib::Vector2D obstaclePos = {xspots.at(j), yspots.at(j)};
-      turtlelib::Vector2D d = far_point_world - near_point_world;
+      turtlelib::Point2D objSpot = {xspots.at(j), yspots.at(j)};
+      objSpot = robotPose.inv()(objSpot);
+      turtlelib::Vector2D c = {objSpot.x, objSpot.y};
 
-      double t = turtlelib::dot(obstaclePos - near_point_world, d) / turtlelib::dot(d, d);
-      t = std::clamp(t, 0.0, 1.0);
-      turtlelib::Vector2D closest_point = near_point_world + d * t;
-      double dist_to_obstacle = turtlelib::magnitude(closest_point - obstaclePos);
+  
+      turtlelib::Vector2D d = far_point - near_point;
+      turtlelib::Vector2D f = near_point - c;
+      
+      double a = turtlelib::dot(d, d);
+      double b = 2 * turtlelib::dot(f, d);
+      double c_val = turtlelib::dot(f, f) - r * r;
 
-      if(dist_to_obstacle < obstacle_radius) {
-        // the ray intersects the obstacle, move the far point to the closest point minus the radius
-        distances.push_back(turtlelib::magnitude(closest_point - robotPose.translation()) - obstacle_radius);
-      }
-      else {
-        // no intersection, use the original far point
-        distances.push_back(turtlelib::magnitude(far_point_world - robotPose.translation()));
+      double discriminant = b * b - 4 * a * c_val;
+
+      if(discriminant >= 0){
+        double sqrt_disc = std::sqrt(discriminant);
+        double t1 = (-b - sqrt_disc) / (2 * a);
+        double t2 = (-b + sqrt_disc) / (2 * a);
+
+        if(t1 >= 0 && t1 <= 1 && t1 <= t2) {
+          turtlelib::Vector2D intersection = near_point + d * t1;
+          double dist = turtlelib::magnitude(intersection);
+          if(dist < min_distance) {
+            min_distance = dist;
+          }
+        }
+        else if(t2 >= 0 && t2 <= 1 && t2 <= t1) {
+          turtlelib::Vector2D intersection = near_point + d * t2;
+          double dist = turtlelib::magnitude(intersection);
+          if(dist < min_distance) {
+            min_distance = dist;
+          }
+        }
       }
     }
-  }
 
+    distances.push_back(min_distance);
+  }
   auto scanmsg = sensor_msgs::msg::LaserScan();
   scanmsg.header.stamp = this->get_clock()->now();
   scanmsg.header.frame_id = "red/base_footprint";
