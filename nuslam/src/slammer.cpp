@@ -56,8 +56,11 @@ class DiffDriveProcessModel : public EKFProcessModel {
 
       return A;
     }
-    arma::mat Q() override{
-      return arma::eye(3, 3) * 1/100;
+
+    arma::mat Q(size_t size) override{
+      arma::mat Q = arma::zeros(size, size);
+      Q.submat(0, 0, 2, 2) = arma::eye(3, 3) * 1/100;
+      return Q;
     }
 };
 
@@ -103,6 +106,14 @@ class CylinderMeasureModel : public EKFMeasurementModel {
       H.at(1, indexToLandmark(index) + 1) = dx / q;
 
       return H;
+    }
+
+    arma::mat V(size_t size) override{
+      int idx = indexToLandmark(index);
+
+      arma::mat V = arma::zeros(size, size);
+      V.submat(idx, idx, idx + 1, idx + 1) = arma::eye(2, 2) * 1/100;
+      return V;
     }
 
     private:
