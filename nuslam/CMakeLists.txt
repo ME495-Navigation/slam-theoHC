@@ -10,6 +10,15 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(Armadillo REQUIRED)
 find_package(turtlelib REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+
+add_library(ekf src/ekf.cpp)
+
+target_include_directories(ekf PUBLIC include)
+target_link_libraries(ekf PUBLIC ${ARMADILLO_LIBRARIES})
 
 add_executable(slammer src/slammer.cpp)
 
@@ -18,9 +27,14 @@ target_link_libraries(
   slammer PRIVATE
   rclcpp::rclcpp
   turtlelib::turtlelib
+  tf2::tf2
+  tf2_ros::tf2_ros
   ####### begin_citation [24] #######
   ${ARMADILLO_LIBRARIES}
   ####### end_citation [24] #######
+  ekf
+  ${nav_msgs_TARGETS}
+  ${visualization_msgs_TARGETS}
 )
 
 if(BUILD_TESTING)
