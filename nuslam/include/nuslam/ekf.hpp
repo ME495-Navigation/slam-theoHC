@@ -38,7 +38,7 @@ class EKFMeasurementModel {
     /// \brief The covariance of the measurement noise, which can in theory depend on the current state
     /// \param x The current state
     /// \return The covariance of the measurement noise
-    virtual arma::mat V(size_t size) = 0; //Measurement noise covariance
+    virtual arma::mat R(size_t size) = 0; //Measurement noise covariance
     virtual ~EKFMeasurementModel() = default;
 };
 

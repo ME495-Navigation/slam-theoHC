@@ -29,7 +29,7 @@ class DiffDriveProcessModel : public EKFProcessModel {
     arma::vec g(const arma::vec& x, const arma::vec& u) override{
       arma::vec update_pred = arma::zeros(x.n_rows);
       arma::vec update_noise = arma::zeros(x.n_rows);
-      update_noise.subvec(0, 2) = sample_gaussian_noise(Q());
+      update_noise.subvec(0, 2) = sample_gaussian_noise(Q(3));
 
       if(std::abs(u.at(0)) < 1e-5){
         //make an arma vec that's the same size as x but all zeros
@@ -108,12 +108,12 @@ class CylinderMeasureModel : public EKFMeasurementModel {
       return H;
     }
 
-    arma::mat V(size_t size) override{
+    arma::mat R(size_t size) override{
       int idx = indexToLandmark(index);
 
-      arma::mat V = arma::zeros(size, size);
-      V.submat(idx, idx, idx + 1, idx + 1) = arma::eye(2, 2) * 1/100;
-      return V;
+      arma::mat R = arma::zeros(size, size);
+      R.submat(idx, idx, idx + 1, idx + 1) = arma::eye(2, 2) * 1/100;
+      return R;
     }
 
     private:
@@ -128,7 +128,7 @@ Node("nuslam")
     odomSub = this->create_subscription<nav_msgs::msg::Odometry>("odom", 10, std::bind(&Slammer::odomCallback, this, std::placeholders::_1));
     fakeInputSub = this->create_subscription<visualization_msgs::msg::MarkerArray>("fake_input", 10, std::bind(&Slammer::fakeInputCallback, this, std::placeholders::_1));
 
-    ekf = ExtendedKalmanFilter(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0}), arma::eye(3, 3));
+    ekf = ExtendedKalmanFilter(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0}), arma::zeros(3, 3));
 
     tf_broadcaster =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);

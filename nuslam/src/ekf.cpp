@@ -19,7 +19,7 @@ void ExtendedKalmanFilter::update(const arma::vec& measurement, EKFMeasurementMo
     //Compute the Kalman gain
     arma::mat K = estimate_covariance * measurement_model.H(state_estimate).t() * 
         arma::inv(measurement_model.H(state_estimate) * estimate_covariance * measurement_model.H(state_estimate).t() + 
-        measurement_model.V(state_estimate.n_rows));
+        measurement_model.R(state_estimate.n_rows));
     //Update the state estimate using the measurement and the Kalman gain
     state_estimate = state_estimate + K * (measurement - measurement_model.h(state_estimate));
     //Update the estimate covariance using the Kalman gain and the linearized measurement model
