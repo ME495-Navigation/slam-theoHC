@@ -50,8 +50,9 @@ odometry::odometry()
 
 void odometry::odomCallback(const sensor_msgs::msg::JointState msg)
 {
-
-  double left_wheel_pos = msg.position[0];
+// .at(), especially because anybody can publish a joint_state message so it actually is possible
+    // that your code encounters msg.position.size() == 0 for example
+    double left_wheel_pos = msg.position[0]; 
   double right_wheel_pos = msg.position[1];
 
     //Set the wheel positions if we haven't to avoid jumps on the first callback

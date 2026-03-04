@@ -38,7 +38,7 @@ namespace turtlelib{
         }
         double theta1_dot = (vel.x - (wheel_base / 2.0) * vel.omega) / wheel_radius;
         double theta2_dot = (vel.x + (wheel_base / 2.0) * vel.omega) / wheel_radius;
-        return Vector2D(theta1_dot, theta2_dot);
+        return Vector2D(theta1_dot, theta2_dot); // Vector2D is redundant here
     }
 
     Transform2D DiffDrive::get_pose() const{
