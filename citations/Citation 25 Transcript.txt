@@ -1,0 +1,66 @@
+In the nusim.cpp file in my github repository, I want to add LIDAR collision with the wall in the second part of the fake_sensor_callback code. Please give a drop-in snippet I can use for this.
+3:18 PM
+Investigated repository to locate target file
+
+I need to find your GitHub repository. Could you share the link, or should I search for it?
+Architected wall-ray intersection logic for LIDAR simulation
+
+I have everything I need. Here's the drop-in snippet. It's split into two parts — one goes before the per-angle for loop, and one goes inside the loop after the obstacle intersection block.
+Part 1 — Add before the per-angle for loop (after double r = get_parameter("obstacles.r")...)
+cpp
+
+// Pre-compute the 4 arena wall inner faces as segments in the robot frame.
+// The inner face of each wall sits exactly at ±arena_x/2 and ±arena_y/2.
+double ax = get_parameter("arena_x_length").as_double() / 2.0;
+double ay = get_parameter("arena_y_length").as_double() / 2.0;
+
+using Pt = turtlelib::Point2D;
+const std::vector<std::pair<Pt, Pt>> wall_world = {
+  {{-ax, -ay}, { ax, -ay}},   // south wall
+  {{ ax, -ay}, { ax,  ay}},   // east wall
+  {{ ax,  ay}, {-ax,  ay}},   // north wall
+  {{-ax,  ay}, {-ax, -ay}},   // west wall
+};
+
+// Transform all wall endpoints into the robot frame once (outside the ray loop).
+const turtlelib::Transform2D robotPoseInv = robotPose.inv();
+std::vector<std::pair<turtlelib::Vector2D, turtlelib::Vector2D>> wall_robot_frame;
+for (const auto & [ws, we] : wall_world) {
+  turtlelib::Point2D a = robotPoseInv(ws);
+  turtlelib::Point2D b = robotPoseInv(we);
+  wall_robot_frame.push_back({{a.x, a.y}, {b.x, b.y}});
+}
+
+Part 2 — Add inside the per-angle loop, after the obstacle for loop closes and before distances.push_back(min_distance)
+cpp
+
+// Wall intersection: segment–segment test in robot frame.
+// Ray   P(t) = near_point + t * r,    t ∈ [0, 1]
+// Wall  Q(u) = wall_a  + u * s,       u ∈ [0, 1]
+for (const auto & [wall_a, wall_b] : wall_robot_frame) {
+  turtlelib::Vector2D r = far_point - near_point;   // ray direction vector
+  turtlelib::Vector2D s = wall_b - wall_a;           // wall segment direction
+
+  double r_cross_s = r.x * s.y - r.y * s.x;
+
+  if (std::abs(r_cross_s) > 1e-10) {               // non-parallel
+    turtlelib::Vector2D qmp = wall_a - near_point;
+    double t = (qmp.x * s.y - qmp.y * s.x) / r_cross_s;
+    double u = (qmp.x * r.y - qmp.y * r.x) / r_cross_s;
+
+    if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) {
+      turtlelib::Vector2D intersection = near_point + r * t;
+      double dist = turtlelib::magnitude(intersection);
+      if (dist < min_distance) {
+        min_distance = dist;
+      }
+    }
+  }
+}
+
+How it works
+
+    Part 1 builds the 4 inner wall faces as world-frame line segments at ±arena_x_length/2 and ±arena_y_length/2, then transforms them into the robot frame once before the ray loop — the same pattern your obstacle code uses with robotPose.inv().
+    Part 2 runs a standard 2D segment–segment intersection test for each wall. t parameterises the ray (0 = near_point, 1 = far_point), and u parameterises the wall segment. Both must be in [0, 1] for a valid hit. The intersection distance from the robot origin is then compared against min_distance exactly like the obstacle hits are.
+
+This is fully consistent with your existing circle-line intersection style and needs no new includes or turtlelib additions.

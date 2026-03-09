@@ -5,6 +5,7 @@
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include <vector>
 
 class Slammer : public rclcpp::Node {
     public:
@@ -20,4 +21,8 @@ class Slammer : public rclcpp::Node {
 
         void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg);
         void fakeInputCallback(const visualization_msgs::msg::MarkerArray::SharedPtr msg);
+
+        int numLandmarks = 0;
+
+        std::vector<int> LandmarkIDtoIndex;
 };

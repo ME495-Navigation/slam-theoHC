@@ -37,6 +37,9 @@ nusimulator::nusimulator()
   declare_parameter("slip_fraction", 0.0f);
 
   declare_parameter("basic_sensor_variance", 0.0f);
+  declare_parameter("lidar_variance", 0.0f);
+
+  declare_parameter("real_bot_path_length", 1000);
 
   double x = get_parameter("x0").as_double();
   double y = get_parameter("y0").as_double();
@@ -73,9 +76,13 @@ nusimulator::nusimulator()
       // Publishes the joint states of the simulated robot
   jointpub = this->create_publisher<sensor_msgs::msg::JointState>("red/joint_states", 10);
 
+      // Publishes the path of the simulated robot
+  pathpub = this->create_publisher<nav_msgs::msg::Path>("red/path", 10);
+
+      // Publisher for simulated lidar data
   laserscanpub = this->create_publisher<sensor_msgs::msg::LaserScan>("red/lidar", 10);
-        //SUBSCRIBERS
-        // Subscriber to wheel commands for simulated robot
+      //SUBSCRIBERS
+      // Subscriber to wheel commands for simulated robot
   wheelcmdsub = this->create_subscription<nuturtlebot_msgs::msg::WheelCommands>("red/wheel_cmd",
         10, std::bind(&nusimulator::wheelcmd_callback, this, std::placeholders::_1));
 
@@ -171,6 +178,29 @@ void nusimulator::sim_tick_callback()
   t.transform.translation.y = y;
 
   tf_broadcaster->sendTransform(t);
+
+  geometry_msgs::msg::PoseStamped nextPose;
+  nextPose.header.stamp = this->get_clock()->now();
+  nextPose.header.frame_id = "nusim/world";
+  nextPose.pose.position.x = x;
+  nextPose.pose.position.y = y;
+  nextPose.pose.position.z = 0.0;
+  nextPose.pose.orientation = t.transform.rotation;
+
+  real_bot_path.push_back(nextPose);
+  // ######### begin_citation [26] #########
+  if (real_bot_path.size() > static_cast<size_t>(get_parameter("real_bot_path_length").as_int())) {
+    real_bot_path.pop_front();
+  }
+  // ######### end_citation [26] #########
+
+  nav_msgs::msg::Path pathmsg;
+  pathmsg.header.stamp = this->get_clock()->now();
+  pathmsg.header.frame_id = "nusim/world";
+  // ######### end_citation [26] #########
+  pathmsg.poses.assign(real_bot_path.begin(), real_bot_path.end());
+  // ######### end_citation [26] #########
+  pathpub->publish(pathmsg);
 }
 
 void nusimulator::collision_check()
@@ -254,6 +284,25 @@ void nusimulator::fake_sensor_tick_callback()
 
   double r = get_parameter("obstacles.r").as_double();
 
+  double ax = get_parameter("arena_x_length").as_double() / 2.0;
+  double ay = get_parameter("arena_y_length").as_double() / 2.0;
+
+  const std::vector<std::pair<turtlelib::Point2D, turtlelib::Point2D>> wall_world = {
+    {{-ax, -ay}, { ax, -ay}},   // south wall
+    {{ ax, -ay}, { ax,  ay}},   // east wall
+    {{ ax,  ay}, {-ax,  ay}},   // north wall
+    {{-ax,  ay}, {-ax, -ay}},   // west wall
+  };
+
+  // Transform all wall endpoints into the robot frame once (outside the ray loop).
+  const turtlelib::Transform2D robotPoseInv = robotPose.inv();
+  std::vector<std::pair<turtlelib::Vector2D, turtlelib::Vector2D>> wall_robot_frame;
+  for (const auto & [ws, we] : wall_world) {
+    turtlelib::Point2D a = robotPoseInv(ws);
+    turtlelib::Point2D b = robotPoseInv(we);
+    wall_robot_frame.push_back({{a.x, a.y}, {b.x, b.y}});
+  }
+
   //first generate points in the robot frame between min and max range
   for(int i = 0; i < get_parameter("lidar_num_points").as_int(); i++) {
     double angle = i * 2 * M_PI / get_parameter("lidar_num_points").as_int();
@@ -264,6 +313,7 @@ void nusimulator::fake_sensor_tick_callback()
     turtlelib::Vector2D far_point = point * get_parameter("lidar_max_range").as_double();
 
     double min_distance = get_parameter("lidar_max_range").as_double() * .99;
+
     for(size_t j = 0; j < xspots.size(); j++) {
       turtlelib::Point2D objSpot = {xspots.at(j), yspots.at(j)};
       objSpot = robotPose.inv()(objSpot);
@@ -301,8 +351,38 @@ void nusimulator::fake_sensor_tick_callback()
       }
     }
 
+    // Wall intersection: segment–segment test in robot frame.
+    // Ray   P(t) = near_point + t * r,    t ∈ [0, 1]
+    // Wall  Q(u) = wall_a  + u * s,       u ∈ [0, 1]
+    for (const auto & [wall_a, wall_b] : wall_robot_frame) {
+      turtlelib::Vector2D r = far_point - near_point;   // ray direction vector
+      turtlelib::Vector2D s = wall_b - wall_a;           // wall segment direction
+
+      double r_cross_s = r.x * s.y - r.y * s.x;
+
+      if (std::abs(r_cross_s) > 1e-10) {               // non-parallel
+        turtlelib::Vector2D qmp = wall_a - near_point;
+        double t = (qmp.x * s.y - qmp.y * s.x) / r_cross_s;
+        double u = (qmp.x * r.y - qmp.y * r.x) / r_cross_s;
+
+        if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) {
+          turtlelib::Vector2D intersection = near_point + r * t;
+          double dist = turtlelib::magnitude(intersection);
+          if (dist < min_distance) {
+            min_distance = dist;
+          }
+        }
+      }
+    }
+
     distances.push_back(min_distance);
   }
+
+  for(size_t i = 0; i < distances.size(); i++) {
+    std::normal_distribution<double> d(0, get_parameter("lidar_variance").as_double());
+    distances.at(i) += d(get_random());
+  }
+
   auto scanmsg = sensor_msgs::msg::LaserScan();
   scanmsg.header.stamp = this->get_clock()->now();
   scanmsg.header.frame_id = "red/base_footprint";

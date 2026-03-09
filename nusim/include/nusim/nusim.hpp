@@ -3,6 +3,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <deque>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/u_int64.hpp"
@@ -11,7 +12,9 @@
 #include "tf2/LinearMath/Quaternion.hpp"
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
+#include "nav_msgs/msg/path.hpp"
 #include <nuturtlebot_msgs/msg/wheel_commands.hpp>
 #include <nuturtlebot_msgs/msg/sensor_data.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -36,6 +39,7 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr wallpub;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstaclepub;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_obstaclepub;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pathpub;
 
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensordatapub;
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheelcmdsub;
@@ -88,4 +92,6 @@ private:
   // ##### end_citation [23] #####
 
   void fake_sensor_tick_callback();
+
+  std::deque<geometry_msgs::msg::PoseStamped> real_bot_path;
 };
