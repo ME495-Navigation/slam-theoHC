@@ -1,5 +1,8 @@
 #include "nuslam/slammer.hpp"
 #include "nuslam/ekf.hpp"
+#include "turtlelib/se2d.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 arma::vec sample_gaussian_noise(const arma::mat& Sigma, arma::arma_rng::seed_type seed = 0)
 {
@@ -123,25 +126,144 @@ class CylinderMeasureModel : public EKFMeasurementModel {
 };
 
 Slammer::Slammer() : 
-Node("nuslam")
+Node("nuslam"),
+ekf(DiffDriveEKF(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0}), arma::zeros(3, 3)))
 {
     odomSub = this->create_subscription<nav_msgs::msg::Odometry>("odom", 10, std::bind(&Slammer::odomCallback, this, std::placeholders::_1));
     fakeInputSub = this->create_subscription<visualization_msgs::msg::MarkerArray>("fake_input", 10, std::bind(&Slammer::fakeInputCallback, this, std::placeholders::_1));
+    slamMarkerPub = this->create_publisher<visualization_msgs::msg::MarkerArray>("slam_landmarks", 10);
 
-    ekf = ExtendedKalmanFilter(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0}), arma::zeros(3, 3));
+    declare_parameter("obstacle_radius", 0.5);
 
     tf_broadcaster =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 }
 
 void Slammer::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
-    RCLCPP_INFO(this->get_logger(), "Received odometry message: position=(%f, %f), orientation=(%f, %f, %f, %f)", 
-        msg->pose.pose.position.x, msg->pose.pose.position.y,
-        msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
+    // Convert odometry message to control input
+    double linear_vel = msg->twist.twist.linear.x;
+    double angular_vel = msg->twist.twist.angular.z;
+
+    arma::vec u = {angular_vel, linear_vel, 0};
+
+    // EKF prediction step
+    ekf.predict(u);
+
+    // Compute the map->odom transform and broadcast it
+    arma::vec robotPose = ekf.getRobotPose();
+
+    turtlelib::Transform2D T_map_robot(
+        turtlelib::Vector2D{robotPose(1), robotPose(2)}, robotPose(0));
+
+    const auto& odom_pos = msg->pose.pose.position;
+    tf2::Quaternion odom_q;
+    tf2::fromMsg(msg->pose.pose.orientation, odom_q);
+    double odom_roll, odom_pitch, odom_yaw;
+    tf2::Matrix3x3(odom_q).getRPY(odom_roll, odom_pitch, odom_yaw);
+    turtlelib::Transform2D T_odom_robot(
+        turtlelib::Vector2D{odom_pos.x, odom_pos.y}, odom_yaw);
+
+    turtlelib::Transform2D T_map_odom = T_map_robot * T_odom_robot.inv();
+
+    tf2::Quaternion map_odom_q;
+    map_odom_q.setRPY(0, 0, T_map_odom.rotation());
+
+    geometry_msgs::msg::TransformStamped tf_msg;
+    tf_msg.header.stamp = this->get_clock()->now();
+    tf_msg.header.frame_id = "map";
+    tf_msg.child_frame_id = "odom";
+    tf_msg.transform.translation.x = T_map_odom.translation().x;
+    tf_msg.transform.translation.y = T_map_odom.translation().y;
+    tf_msg.transform.translation.z = 0.0;
+    tf_msg.transform.rotation = tf2::toMsg(map_odom_q);
+    tf_broadcaster->sendTransform(tf_msg);
 }
 
 void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::SharedPtr msg) {
-    RCLCPP_INFO(this->get_logger(), "Received fake input message with %zu markers", msg->markers.size());
+    // Initialize LandmarkIDtoIndex if needed
+    if (LandmarkIDtoIndex.size() != msg->markers.size()) {
+        LandmarkIDtoIndex.assign(msg->markers.size(), -1);
+    }
+    
+    // Iterate through markers
+    for (size_t i = 0; i < msg->markers.size(); ++i) {
+        const auto& marker = msg->markers[i];
+        
+        // Check if marker action is add/modify (action = 0)
+        if (marker.action == 0) {
+            // If this landmark hasn't been assigned an index yet
+            if (LandmarkIDtoIndex[i] == -1) {
+                // Find the lowest unoccupied integer
+                int lowest_unoccupied = 0;
+                while (true) {
+                    bool found = false;
+                    for (int val : LandmarkIDtoIndex) {
+                        if (val == lowest_unoccupied) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        break;
+                    }
+                    lowest_unoccupied++;
+                }
+                
+                LandmarkIDtoIndex[i] = lowest_unoccupied;
+            }
+            
+            int landmark_index = LandmarkIDtoIndex[i];
+            
+            // Check if we need to extend the state
+            if (static_cast<size_t>(landmark_index) + 1 > static_cast<size_t>(ekf.getNumObstacles())) {
+                // Create high initial covariance for the new landmark
+                arma::vec new_landmark_state = {marker.pose.position.x, marker.pose.position.y};
+                arma::mat high_cov = arma::eye(2, 2) * 1e6;
+                ekf.extendState(new_landmark_state, high_cov);
+            }
+            
+            // Create measurement update with the proper index
+            CylinderMeasureModel measurement_model;
+            measurement_model.index = landmark_index;
+            
+            arma::vec measurement = {marker.scale.x, marker.scale.y};
+            
+            // Run EKF update with that measurement model
+            ekf.update(measurement, measurement_model);
+
+            arma::vec robotPose = ekf.getRobotPose();
+        }
+    }
+
+    visualization_msgs::msg::MarkerArray slamdmarks;
+
+    for(int i = 0; i < static_cast<int>(LandmarkIDtoIndex.size()); i++) {
+        if(LandmarkIDtoIndex.at(i) != -1) {
+            int obs_index = LandmarkIDtoIndex.at(i);
+            arma::vec pos = ekf.getObstaclePosition(obs_index);
+
+            visualization_msgs::msg::Marker marker;
+            marker.header.frame_id = "map";
+            marker.header.stamp = this->get_clock()->now();
+            marker.id = i;
+            marker.type = visualization_msgs::msg::Marker::SPHERE;
+            marker.action = visualization_msgs::msg::Marker::ADD;
+            marker.pose.position.x = pos(0);
+            marker.pose.position.y = pos(1);
+            marker.pose.position.z = 0.0;
+            marker.pose.orientation.w = 1.0;
+            double r = this->get_parameter("obstacle_radius").as_double();
+            marker.scale.x = 2.0 * r;
+            marker.scale.y = 2.0 * r;
+            marker.scale.z = 2.0 * r;
+            marker.color.r = 0.0;
+            marker.color.g = 1.0;
+            marker.color.b = 0.0;
+            marker.color.a = 1.0;
+            slamdmarks.markers.push_back(marker);
+        }
+    }
+    slamMarkerPub->publish(slamdmarks);
 }
 
 int main(int argc, char * argv[])

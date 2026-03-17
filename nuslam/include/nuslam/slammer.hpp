@@ -12,10 +12,11 @@ class Slammer : public rclcpp::Node {
         Slammer();
     
     private:
-        ExtendedKalmanFilter ekf;
+        DiffDriveEKF ekf;
 
         rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odomSub;
         rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr fakeInputSub;
+        rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr slamMarkerPub;
 
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
 

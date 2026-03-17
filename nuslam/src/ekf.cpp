@@ -32,3 +32,12 @@ void ExtendedKalmanFilter::extendState(const arma::vec& new_state, const arma::m
     estimate_covariance = arma::join_vert(arma::join_horiz(estimate_covariance, arma::zeros(estimate_covariance.n_rows, new_covariance.n_cols)),
         arma::join_horiz(arma::zeros(new_covariance.n_rows, estimate_covariance.n_cols), new_covariance));
 }
+
+DiffDriveEKF::DiffDriveEKF(std::unique_ptr<EKFProcessModel> process_model, arma::vec state_estimate, arma::mat estimate_covariance) :
+    ExtendedKalmanFilter(std::move(process_model), state_estimate, estimate_covariance)
+{}
+
+void DiffDriveEKF::extendStateWithObstacle(const arma::vec& new_state, const arma::mat& new_covariance) {
+    ExtendedKalmanFilter::extendState(new_state, new_covariance);
+    num_obstacles++;
+}

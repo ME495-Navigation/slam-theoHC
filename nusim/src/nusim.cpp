@@ -3,6 +3,7 @@
 #include <random>
 #include "std_msgs/msg/color_rgba.hpp"
 #include "turtlelib/angle.hpp"
+#include "turtlelib/geometry2d.hpp"
 
 nusimulator::nusimulator()
 : Node("nusimulator"), robotState(0.0, 0.0), left_wheel_vel(0.0), right_wheel_vel(0.0), reported_wheel_positions(0.0, 0.0), count(0)

@@ -14,6 +14,7 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(ekf src/ekf.cpp)
 
@@ -29,6 +30,7 @@ target_link_libraries(
   turtlelib::turtlelib
   tf2::tf2
   tf2_ros::tf2_ros
+  tf2_geometry_msgs::tf2_geometry_msgs
   ####### begin_citation [24] #######
   ${ARMADILLO_LIBRARIES}
   ####### end_citation [24] #######

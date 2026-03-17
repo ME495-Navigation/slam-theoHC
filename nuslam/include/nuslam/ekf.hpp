@@ -63,4 +63,35 @@ class ExtendedKalmanFilter {
 
 };
 
+class DiffDriveEKF : public ExtendedKalmanFilter {
+    public:
+        DiffDriveEKF() = default;
+        DiffDriveEKF(std::unique_ptr<EKFProcessModel> process_model, arma::vec state_estimate, arma::mat estimate_covariance);
+
+        /// \brief Wrapper around extendState that increments the obstacle counter
+        /// \param new_state The state of the new obstacle
+        /// \param new_covariance The covariance of the new obstacle
+        void extendStateWithObstacle(const arma::vec& new_state, const arma::mat& new_covariance);
+
+        /// \brief Get the current number of obstacles
+        /// \return The number of obstacles tracked by this EKF
+        int getNumObstacles() const { return num_obstacles; }
+
+        /// \brief Get the x and y coordinates of an obstacle by index
+        /// \param index The index of the obstacle (0-based)
+        /// \return A 2-element vector containing [x, y] of the obstacle
+        arma::vec getObstaclePosition(int index) const {
+            const int base = robot_state_size + 2 * index;
+            return getStateEstimate().subvec(base, base + 1);
+        }
+
+        arma::vec getRobotPose() const {
+            return getStateEstimate().subvec(0, robot_state_size - 1);
+        }
+
+    private:
+        int num_obstacles = 0;
+        const int robot_state_size = 3;
+};
+
 #endif // NUSLAM_EKF_HPP
