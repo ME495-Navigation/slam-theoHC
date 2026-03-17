@@ -131,9 +131,14 @@ ekf(DiffDriveEKF(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0})
 {
     odomSub = this->create_subscription<nav_msgs::msg::Odometry>("odom", 10, std::bind(&Slammer::odomCallback, this, std::placeholders::_1));
     fakeInputSub = this->create_subscription<visualization_msgs::msg::MarkerArray>("fake_input", 10, std::bind(&Slammer::fakeInputCallback, this, std::placeholders::_1));
+    // ######### begin_citation[28] #########
     slamMarkerPub = this->create_publisher<visualization_msgs::msg::MarkerArray>("slam_landmarks", 10);
+    // ######### end_citation[28] #########
 
     declare_parameter("obstacle_radius", 0.5);
+
+    declare_parameter("map_id", "map");
+    declare_parameter("odom_id", "odom");
 
     tf_broadcaster =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -152,6 +157,7 @@ void Slammer::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
     // Compute the map->odom transform and broadcast it
     arma::vec robotPose = ekf.getRobotPose();
 
+    // ######### begin_citation[29] #########
     turtlelib::Transform2D T_map_robot(
         turtlelib::Vector2D{robotPose(1), robotPose(2)}, robotPose(0));
 
@@ -177,6 +183,7 @@ void Slammer::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
     tf_msg.transform.translation.z = 0.0;
     tf_msg.transform.rotation = tf2::toMsg(map_odom_q);
     tf_broadcaster->sendTransform(tf_msg);
+    // ######### end_citation[29] #########
 }
 
 void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::SharedPtr msg) {
@@ -235,6 +242,7 @@ void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::Shar
         }
     }
 
+    // ######### begin_citation[28] #########
     visualization_msgs::msg::MarkerArray slamdmarks;
 
     for(int i = 0; i < static_cast<int>(LandmarkIDtoIndex.size()); i++) {
@@ -246,16 +254,14 @@ void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::Shar
             marker.header.frame_id = "map";
             marker.header.stamp = this->get_clock()->now();
             marker.id = i;
-            marker.type = visualization_msgs::msg::Marker::SPHERE;
+            marker.type = visualization_msgs::msg::Marker::CYLINDER;
             marker.action = visualization_msgs::msg::Marker::ADD;
             marker.pose.position.x = pos(0);
             marker.pose.position.y = pos(1);
-            marker.pose.position.z = 0.0;
-            marker.pose.orientation.w = 1.0;
             double r = this->get_parameter("obstacle_radius").as_double();
             marker.scale.x = 2.0 * r;
             marker.scale.y = 2.0 * r;
-            marker.scale.z = 2.0 * r;
+            marker.scale.z = .25;
             marker.color.r = 0.0;
             marker.color.g = 1.0;
             marker.color.b = 0.0;
@@ -264,6 +270,7 @@ void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::Shar
         }
     }
     slamMarkerPub->publish(slamdmarks);
+    // ######### end_citation[28] #########
 }
 
 int main(int argc, char * argv[])

@@ -10,6 +10,9 @@ odometry::odometry()
   declare_parameter<std::string>("body_id", "base_footprint");
   // Name of the frame that the robots position is computed relative to
   declare_parameter<std::string>("odom_id", "odom");
+  // Optional: secondary body/odom frame pair for an uncorrected odometry transform
+  declare_parameter<std::string>("uncorrected_body_id");
+  declare_parameter<std::string>("uncorrected_odom_id");
   // Name of the left wheel joint
   declare_parameter<std::string>("wheel_left");
   // Name of the right wheel joint
@@ -78,6 +81,19 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg)
 
   tf_broadcaster->sendTransform(t);
 
+  rclcpp::Parameter filler_param;
+
+  if (get_parameter("uncorrected_body_id", filler_param) 
+  && get_parameter("uncorrected_odom_id", filler_param))
+  {
+    const auto p_body = get_parameter("uncorrected_body_id");
+    const auto p_odom = get_parameter("uncorrected_odom_id");
+    geometry_msgs::msg::TransformStamped t2 = t;
+    t2.header.frame_id = p_odom.as_string();
+    t2.child_frame_id = p_body.as_string();
+    tf_broadcaster->sendTransform(t2);
+  }
+
   turtlelib::Twist2D vel = robotState.get_twist();
 
     //Publish Odometry Message
@@ -116,6 +132,17 @@ void odometry::initPoseCallback(
   t.transform.rotation = tf2::toMsg(q);
 
   tf_broadcaster->sendTransform(t);
+
+  const auto p_body = get_parameter("uncorrected_body_id");
+  const auto p_odom = get_parameter("uncorrected_odom_id");
+  if (p_body.get_type() == rclcpp::PARAMETER_STRING &&
+      p_odom.get_type() == rclcpp::PARAMETER_STRING)
+  {
+    geometry_msgs::msg::TransformStamped t2 = t;
+    t2.header.frame_id = p_odom.as_string();
+    t2.child_frame_id = p_body.as_string();
+    tf_broadcaster->sendTransform(t2);
+  }
 }
 
 int main(int argc, char * argv[])

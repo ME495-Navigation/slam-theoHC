@@ -77,6 +77,7 @@ class DiffDriveEKF : public ExtendedKalmanFilter {
         /// \return The number of obstacles tracked by this EKF
         int getNumObstacles() const { return num_obstacles; }
 
+        // ######### begin_citation[27] #########
         /// \brief Get the x and y coordinates of an obstacle by index
         /// \param index The index of the obstacle (0-based)
         /// \return A 2-element vector containing [x, y] of the obstacle
@@ -84,6 +85,7 @@ class DiffDriveEKF : public ExtendedKalmanFilter {
             const int base = robot_state_size + 2 * index;
             return getStateEstimate().subvec(base, base + 1);
         }
+        // ######### end_citation[27] #########
 
         arma::vec getRobotPose() const {
             return getStateEstimate().subvec(0, robot_state_size - 1);
