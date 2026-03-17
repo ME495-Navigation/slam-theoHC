@@ -176,8 +176,8 @@ void Slammer::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
 
     geometry_msgs::msg::TransformStamped tf_msg;
     tf_msg.header.stamp = this->get_clock()->now();
-    tf_msg.header.frame_id = "map";
-    tf_msg.child_frame_id = "odom";
+    tf_msg.header.frame_id = get_parameter("map_id").as_string();
+    tf_msg.child_frame_id = get_parameter("odom_id").as_string();
     tf_msg.transform.translation.x = T_map_odom.translation().x;
     tf_msg.transform.translation.y = T_map_odom.translation().y;
     tf_msg.transform.translation.z = 0.0;
@@ -276,6 +276,7 @@ void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::Shar
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<Slammer>());
   rclcpp::shutdown();
   return 0;
 }
