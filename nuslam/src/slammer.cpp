@@ -62,7 +62,7 @@ class DiffDriveProcessModel : public EKFProcessModel {
 
     arma::mat Q(size_t size) override{
       arma::mat Q = arma::zeros(size, size);
-      Q.submat(0, 0, 2, 2) = arma::eye(3, 3) * 1/100;
+      Q.submat(0, 0, 2, 2) = arma::eye(3, 3) * 1.0/100.0;
       return Q;
     }
 };
@@ -79,8 +79,6 @@ class CylinderMeasureModel : public EKFMeasurementModel {
       double robot_y = x.at(2);
       measurement_pred.at(0) = std::sqrt(std::pow(landmark_x - robot_x, 2) + std::pow(landmark_y - robot_y, 2));
       measurement_pred.at(1) = std::atan2(landmark_y - robot_y, landmark_x - robot_x) - robot_theta;
-
-      arma::vec full_measure = arma::zeros(x.n_rows);
 
       return measurement_pred;
     }
@@ -216,33 +214,29 @@ void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::Shar
             }
             
             int landmark_index = LandmarkIDtoIndex[i];
+
+            arma::vec new_landmark_state = {marker.pose.position.x, marker.pose.position.y};
             
             // Check if we need to extend the state
             if (static_cast<size_t>(landmark_index) + 1 > static_cast<size_t>(ekf.getNumObstacles())) {
                 // Create high initial covariance for the new landmark
-                arma::vec new_landmark_state = {marker.pose.position.x, marker.pose.position.y};
                 arma::mat high_cov = arma::eye(2, 2) * 1e6;
                 ekf.extendState(new_landmark_state, high_cov);
             }
             
             // Create measurement update with the proper index
+            double dx = marker.pose.position.x;
+            double dy = marker.pose.position.y;
+            arma::vec measurement = {
+                std::sqrt(dx*dx + dy*dy),          // range
+                std::atan2(dy, dx)                 // bearing (already relative to robot frame)
+            };
+
             CylinderMeasureModel measurement_model;
             measurement_model.index = landmark_index;
             
-            arma::vec pose = ekf.getRobotPose();  // [θ, x, y]
-            double r = std::sqrt(
-                marker.pose.position.x * marker.pose.position.x +
-                marker.pose.position.y * marker.pose.position.y);
-            double phi = std::atan2(marker.pose.position.y, marker.pose.position.x);
-            arma::vec new_landmark_state = {
-                pose(1) + r * std::cos(phi + pose(0)),   // mx = x + r·cos(φ+θ)
-                pose(2) + r * std::sin(phi + pose(0))    // my = y + r·sin(φ+θ)
-            };
-            
             // Run EKF update with that measurement model
-            ekf.update(new_landmark_state, measurement_model);
-
-            arma::vec robotPose = ekf.getRobotPose();
+            ekf.update(measurement, measurement_model);
         }
     }
 

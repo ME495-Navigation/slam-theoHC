@@ -17,16 +17,17 @@ void ExtendedKalmanFilter::predict(const arma::vec& control_input) {
 
 void ExtendedKalmanFilter::update(const arma::vec& measurement, EKFMeasurementModel& measurement_model) {
     //Compute the Kalman gain
-    arma::mat K = estimate_covariance * measurement_model.H(state_estimate).t() * 
-        arma::inv(measurement_model.H(state_estimate) * estimate_covariance * measurement_model.H(state_estimate).t() + 
+    arma::mat H = measurement_model.H(state_estimate);
+    arma::mat K = estimate_covariance * H.t() * 
+        arma::inv(H * estimate_covariance * H.t() + 
         measurement_model.R());
     //Update the state estimate using the measurement and the Kalman gain
     arma::vec innovation = measurement - measurement_model.h(state_estimate);
-    innovation = normalizeState(innovation);
+    innovation = normalizeInnovation(innovation);
     state_estimate = state_estimate + K * innovation;
     state_estimate = normalizeState(state_estimate);
     //Update the estimate covariance using the Kalman gain and the linearized measurement model
-    estimate_covariance = (arma::eye(estimate_covariance.n_rows, estimate_covariance.n_cols) - K * measurement_model.H(state_estimate)) * estimate_covariance;
+    estimate_covariance = (arma::eye(estimate_covariance.n_rows, estimate_covariance.n_cols) - K * H) * estimate_covariance;
 }
 
 void ExtendedKalmanFilter::extendState(const arma::vec& new_state, const arma::mat& new_covariance) {
@@ -43,6 +44,12 @@ DiffDriveEKF::DiffDriveEKF(std::unique_ptr<EKFProcessModel> process_model, arma:
 void DiffDriveEKF::extendStateWithObstacle(const arma::vec& new_state, const arma::mat& new_covariance) {
     ExtendedKalmanFilter::extendState(new_state, new_covariance);
     num_obstacles++;
+}
+
+arma::vec DiffDriveEKF::normalizeInnovation(arma::vec innovaton) {
+    //Wrap the angle in the innovation to [-pi, pi]
+    innovaton.at(1) = turtlelib::normalize_angle(innovaton.at(1));
+    return innovaton;
 }
 
 arma::vec DiffDriveEKF::normalizeState(arma::vec state){

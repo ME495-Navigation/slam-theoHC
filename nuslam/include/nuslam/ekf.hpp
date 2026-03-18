@@ -61,6 +61,7 @@ class ExtendedKalmanFilter {
         arma::vec state_estimate;
         arma::mat estimate_covariance;
 
+        virtual arma::vec normalizeInnovation(arma::vec innovaton) { return innovaton; }; //Optional function to normalize the state (e.g. wrap angles) after prediction and update steps
         virtual arma::vec normalizeState(arma::vec state) { return state; }; //Optional function to normalize the state (e.g. wrap angles) after prediction and update steps
 
 };
@@ -97,6 +98,7 @@ class DiffDriveEKF : public ExtendedKalmanFilter {
         int num_obstacles = 0;
         const int robot_state_size = 3;
 
+        arma::vec normalizeInnovation(arma::vec innovaton) override;
         arma::vec normalizeState(arma::vec state) override;
 };
 
