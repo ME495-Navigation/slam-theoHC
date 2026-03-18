@@ -215,18 +215,27 @@ void Slammer::fakeInputCallback(const visualization_msgs::msg::MarkerArray::Shar
             
             int landmark_index = LandmarkIDtoIndex[i];
 
-            arma::vec new_landmark_state = {marker.pose.position.x, marker.pose.position.y};
+            arma::vec robotPose = ekf.getRobotPose();
+            double robot_x     = robotPose(1);
+            double robot_y     = robotPose(2);
+            double robot_theta = robotPose(0);
+            double dx = marker.pose.position.x;
+            double dy = marker.pose.position.y;
+
+            arma::vec new_landmark_state = {
+                robot_x + dx * std::cos(robot_theta) - dy * std::sin(robot_theta),
+                robot_y + dx * std::sin(robot_theta) + dy * std::cos(robot_theta)
+            };
             
             // Check if we need to extend the state
             if (static_cast<size_t>(landmark_index) + 1 > static_cast<size_t>(ekf.getNumObstacles())) {
+                RCLCPP_INFO(this->get_logger(), "Adding new landmark with ID %d at position (%.2f, %.2f)", static_cast<int>(i), new_landmark_state(0), new_landmark_state(1));
                 // Create high initial covariance for the new landmark
                 arma::mat high_cov = arma::eye(2, 2) * 1e6;
-                ekf.extendState(new_landmark_state, high_cov);
+                ekf.extendStateWithObstacle(new_landmark_state, high_cov);
             }
             
             // Create measurement update with the proper index
-            double dx = marker.pose.position.x;
-            double dy = marker.pose.position.y;
             arma::vec measurement = {
                 std::sqrt(dx*dx + dy*dy),          // range
                 std::atan2(dy, dx)                 // bearing (already relative to robot frame)

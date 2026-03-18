@@ -8,10 +8,11 @@ ExtendedKalmanFilter::ExtendedKalmanFilter(std::unique_ptr<EKFProcessModel> proc
 {}
 
 void ExtendedKalmanFilter::predict(const arma::vec& control_input) {
+    arma::mat A = process_model->A(state_estimate, control_input);
     //Predict the next state using the process model
     state_estimate = process_model->g(state_estimate, control_input);
     //Predict the next covariance using the linearized process model and the process noise covariance
-    estimate_covariance = process_model->A(state_estimate, control_input) * estimate_covariance * process_model->A(state_estimate, control_input).t() + 
+    estimate_covariance = A * estimate_covariance * A.t() + 
         process_model->Q(state_estimate.n_rows);
 }
 
