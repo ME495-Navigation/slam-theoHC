@@ -32,7 +32,7 @@ nusimulator::nusimulator()
   declare_parameter<double>("motor_cmd_per_rad_sec");
   declare_parameter<double>("collision_radius", 0.08);
 
-  declare_parameter("max_range", 5.0f);
+  declare_parameter("basic_sensor_range", 5.0f);
 
   declare_parameter("input_noise", 0.0f);
   declare_parameter("slip_fraction", 0.0f);
@@ -188,12 +188,15 @@ void nusimulator::sim_tick_callback()
   nextPose.pose.position.z = 0.0;
   nextPose.pose.orientation = t.transform.rotation;
 
-  real_bot_path.push_back(nextPose);
-  // ######### begin_citation [26] #########
-  if (real_bot_path.size() > static_cast<size_t>(get_parameter("real_bot_path_length").as_int())) {
-    real_bot_path.pop_front();
+  // ######### begin_citation [30] #########
+  if (real_bot_path.empty() ||
+      std::abs(real_bot_path.back().pose.position.x - nextPose.pose.position.x) > 1e-3 ||
+      std::abs(real_bot_path.back().pose.position.y - nextPose.pose.position.y) > 1e-3 ||
+      std::abs(real_bot_path.back().pose.orientation.z - nextPose.pose.orientation.z) > 1e-3 ||
+      std::abs(real_bot_path.back().pose.orientation.w - nextPose.pose.orientation.w) > 1e-3) {
+    real_bot_path.push_back(nextPose);
   }
-  // ######### end_citation [26] #########
+  // ######### end_citation [30] #########
 
   nav_msgs::msg::Path pathmsg;
   pathmsg.header.stamp = this->get_clock()->now();
@@ -263,7 +266,7 @@ void nusimulator::fake_sensor_tick_callback()
     color.b = 0.0;
     color.a = 1.0;
 
-    int action = dist < get_parameter("max_range").as_double() ? 0 : 2; // add/modify if in range, delete if out of range
+    int action = dist < get_parameter("basic_sensor_range").as_double() ? 0 : 2; // add/modify if in range, delete if out of range
 
     std::normal_distribution<double> d(0, get_parameter("basic_sensor_variance").as_double());
     turtlelib::Vector2D noise = {d(get_random()), d(get_random())};

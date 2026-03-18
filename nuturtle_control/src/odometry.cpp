@@ -39,6 +39,12 @@ odometry::odometry()
   // Publishes the computed odometry
   odomPub = this->create_publisher<nav_msgs::msg::Odometry>("odom", 10);
 
+  // ######### begin_citation [30] #########
+  // Publishes the odometry path
+  pathPub = this->create_publisher<nav_msgs::msg::Path>("odom_path", 10);
+  uncorrectedPathPub = this->create_publisher<nav_msgs::msg::Path>("uncorrected_odom_path", 10);
+  // ######### end_citation [30] #########
+
   // Publishes the computed offset of the robot relative to the odom frame
   tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -83,7 +89,7 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg)
 
   rclcpp::Parameter filler_param;
 
-  if (get_parameter("uncorrected_body_id", filler_param) 
+  if (get_parameter("uncorrected_body_id", filler_param)
   && get_parameter("uncorrected_odom_id", filler_param))
   {
     const auto p_body = get_parameter("uncorrected_body_id");
@@ -92,6 +98,30 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg)
     t2.header.frame_id = p_odom.as_string();
     t2.child_frame_id = p_body.as_string();
     tf_broadcaster->sendTransform(t2);
+
+    // ######### begin_citation [30] #########
+    geometry_msgs::msg::PoseStamped uncorrNextPose;
+    uncorrNextPose.header.stamp = t.header.stamp;
+    uncorrNextPose.header.frame_id = p_odom.as_string();
+    uncorrNextPose.pose.position.x = pose.translation().x;
+    uncorrNextPose.pose.position.y = pose.translation().y;
+    uncorrNextPose.pose.position.z = 0.0;
+    uncorrNextPose.pose.orientation = tf2::toMsg(q);
+
+    if (uncorrected_path.empty() ||
+        std::abs(uncorrected_path.back().pose.position.x - uncorrNextPose.pose.position.x) > 1e-3 ||
+        std::abs(uncorrected_path.back().pose.position.y - uncorrNextPose.pose.position.y) > 1e-3 ||
+        std::abs(uncorrected_path.back().pose.orientation.z - uncorrNextPose.pose.orientation.z) > 1e-3 ||
+        std::abs(uncorrected_path.back().pose.orientation.w - uncorrNextPose.pose.orientation.w) > 1e-3) {
+      uncorrected_path.push_back(uncorrNextPose);
+    }
+
+    nav_msgs::msg::Path uncorrPathmsg;
+    uncorrPathmsg.header.stamp = t.header.stamp;
+    uncorrPathmsg.header.frame_id = p_odom.as_string();
+    uncorrPathmsg.poses.assign(uncorrected_path.begin(), uncorrected_path.end());
+    uncorrectedPathPub->publish(uncorrPathmsg);
+    // ######### end_citation [30] #########
   }
 
   turtlelib::Twist2D vel = robotState.get_twist();
@@ -109,6 +139,30 @@ void odometry::odomCallback(const sensor_msgs::msg::JointState msg)
   odomMsg.twist.twist.linear.y = 0.0;
   odomMsg.twist.twist.angular.z = vel.omega;
   odomPub->publish(odomMsg);
+
+  // ######### begin_citation [30] #########
+  geometry_msgs::msg::PoseStamped nextPose;
+  nextPose.header.stamp = t.header.stamp;
+  nextPose.header.frame_id = get_parameter("odom_id").as_string();
+  nextPose.pose.position.x = pose.translation().x;
+  nextPose.pose.position.y = pose.translation().y;
+  nextPose.pose.position.z = 0.0;
+  nextPose.pose.orientation = tf2::toMsg(q);
+
+  if (odom_path.empty() ||
+      std::abs(odom_path.back().pose.position.x - nextPose.pose.position.x) > 1e-3 ||
+      std::abs(odom_path.back().pose.position.y - nextPose.pose.position.y) > 1e-3 ||
+      std::abs(odom_path.back().pose.orientation.z - nextPose.pose.orientation.z) > 1e-3 ||
+      std::abs(odom_path.back().pose.orientation.w - nextPose.pose.orientation.w) > 1e-3) {
+    odom_path.push_back(nextPose);
+  }
+
+  nav_msgs::msg::Path pathmsg;
+  pathmsg.header.stamp = t.header.stamp;
+  pathmsg.header.frame_id = get_parameter("odom_id").as_string();
+  pathmsg.poses.assign(odom_path.begin(), odom_path.end());
+  pathPub->publish(pathmsg);
+  // ######### end_citation [30] #########
 }
 
 void odometry::initPoseCallback(

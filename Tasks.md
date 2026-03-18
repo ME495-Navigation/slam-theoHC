@@ -41,3 +41,10 @@ Task C.9
 Task C.11
 Task C.10
 Task C.12
+
+Task V.1
+Task V.2
+Task V.3
+
+Task L.1
+Task L.2

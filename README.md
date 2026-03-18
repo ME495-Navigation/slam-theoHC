@@ -6,6 +6,10 @@ This repository consists of several ROS packages
 - nuturtle_description - visualize some turtlebots
 - turtlelib - plain c++ package for 2d geometry (also has a pretty sweet svg visualization system).
 - nusim - simulate an environment with obstacles for the turtle to move around in
+<!-- begin_citation [31] -->
+- nuturtle_control - control systems for turtlebot movement and odometry
+- nuslam - Extended Kalman Filter SLAM implementation for pose and landmark estimation
+<!-- begin_citation [31] -->
 
 Video of the turtlebot driving in circles:
 
