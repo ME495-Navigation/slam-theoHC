@@ -85,7 +85,7 @@
         <param name="obstacle_radius" value="0.038"/>
         <param name="map_id" value="map"/>
         <param name="odom_id" value="odom"/>
-        <remap from="fake_input" to="nusim/fake_sensor"/>
+        <remap from="fake_input" to="nusimulator/fake_sensor"/>
         <remap from="odom" to="odom"/>
     </node>
 

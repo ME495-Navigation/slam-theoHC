@@ -38,7 +38,7 @@ class EKFMeasurementModel {
     /// \brief The covariance of the measurement noise, which can in theory depend on the current state
     /// \param x The current state
     /// \return The covariance of the measurement noise
-    virtual arma::mat R(size_t size) = 0; //Measurement noise covariance
+    virtual arma::mat R() = 0; //Measurement noise covariance
     virtual ~EKFMeasurementModel() = default;
 };
 
@@ -60,6 +60,8 @@ class ExtendedKalmanFilter {
 
         arma::vec state_estimate;
         arma::mat estimate_covariance;
+
+        virtual arma::vec normalizeState(arma::vec state) { return state; }; //Optional function to normalize the state (e.g. wrap angles) after prediction and update steps
 
 };
 
@@ -94,6 +96,8 @@ class DiffDriveEKF : public ExtendedKalmanFilter {
     private:
         int num_obstacles = 0;
         const int robot_state_size = 3;
+
+        arma::vec normalizeState(arma::vec state) override;
 };
 
 #endif // NUSLAM_EKF_HPP

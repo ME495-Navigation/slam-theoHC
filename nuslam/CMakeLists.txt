@@ -19,7 +19,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 add_library(ekf src/ekf.cpp)
 
 target_include_directories(ekf PUBLIC include)
-target_link_libraries(ekf PUBLIC ${ARMADILLO_LIBRARIES})
+target_link_libraries(ekf PUBLIC ${ARMADILLO_LIBRARIES} turtlelib::turtlelib)
 
 add_executable(slammer src/slammer.cpp)
 
@@ -52,6 +52,9 @@ if(BUILD_TESTING)
 endif()
 
 install(TARGETS slammer DESTINATION lib/${PROJECT_NAME})
-install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY
+  launch
+  config
+  DESTINATION share/${PROJECT_NAME}/)
 
 ament_package()
