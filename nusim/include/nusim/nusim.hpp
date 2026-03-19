@@ -23,10 +23,63 @@
 
 using namespace std::chrono_literals;
 
-/// \brief A simulator node for the nuturtle project
+/// @brief Kinematics simulator for the NUturtle differential-drive robot.
+///
+/// Simulates robot kinematics, wheel slip, input noise, cylindrical obstacle collisions,
+/// a fake proximity sensor, and a ray-cast LIDAR. All simulated topics are namespaced
+/// under `red/`.
+///
+/// @par Subscribed Topics
+/// - `red/wheel_cmd` (nuturtlebot_msgs/WheelCommands): Motor velocity commands to simulate.
+///
+/// @par Published Topics
+/// - `~/timestep` (std_msgs/UInt64): Monotonically increasing simulation tick counter.
+/// - `~/real_walls` (visualization_msgs/MarkerArray): Arena boundary walls for visualisation.
+/// - `~/real_obstacles` (visualization_msgs/MarkerArray): Ground-truth obstacle positions.
+/// - `~/fake_sensor` (visualization_msgs/MarkerArray): Noisy landmark detections visible to
+///   the SLAM node (obstacles within `basic_sensor_range`).
+/// - `red/sensor_data` (nuturtlebot_msgs/SensorData): Simulated encoder tick counts,
+///   optionally corrupted by slip and input noise.
+/// - `red/joint_states` (sensor_msgs/JointState): Simulated wheel joint positions [rad].
+/// - `red/path` (nav_msgs/Path): Ground-truth path history of the simulated robot.
+/// - `red/lidar` (sensor_msgs/LaserScan): Ray-cast LIDAR scan with optional noise.
+///
+/// @par Broadcast TF Frames
+/// - `nusim/world` → `red/base_footprint`: Ground-truth pose of the simulated robot.
+///
+/// @par Services
+/// - `~/reset` (std_srvs/Empty): Resets the robot to its initial pose (x0, y0, theta0) and
+///   clears the path history.
+///
+/// @par Parameters
+/// - `rate` (int): Simulation update rate [ms per tick].
+/// - `x0` (double, default `0.0`): Initial robot x position [m].
+/// - `y0` (double, default `0.0`): Initial robot y position [m].
+/// - `theta0` (double, default `0.0`): Initial robot heading [rad].
+/// - `arena_x_length` (double, default `5.0`): Arena width [m].
+/// - `arena_y_length` (double, default `5.0`): Arena height [m].
+/// - `obstacles.x` (double[], default `[]`): X positions of cylindrical obstacles [m].
+/// - `obstacles.y` (double[], default `[]`): Y positions of cylindrical obstacles [m].
+/// - `obstacles.r` (double, default `3.0`): Radius of each obstacle [m].
+/// - `lidar_min_range` (double, default `0.12`): Minimum LIDAR range [m].
+/// - `lidar_max_range` (double, default `3.5`): Maximum LIDAR range [m].
+/// - `lidar_num_points` (int, default `360`): Number of rays per LIDAR scan.
+/// - `lidar_noise_stddev` (double, default `0.0`): Std dev of Gaussian noise on LIDAR ranges [m].
+/// - `wheel_radius` (double, **required**): Wheel radius [m].
+/// - `track_width` (double, **required**): Wheel-to-wheel distance [m].
+/// - `encoder_ticks_per_rad` (double, **required**): Encoder ticks per radian.
+/// - `motor_cmd_max` (double, **required**): Maximum motor command magnitude.
+/// - `motor_cmd_per_rad_sec` (double, **required**): Motor command units per rad/s.
+/// - `collision_radius` (double, default `0.08`): Robot collision radius for obstacle detection [m].
+/// - `basic_sensor_range` (float, default `5.0`): Maximum range of the fake proximity sensor [m].
+/// - `input_noise` (float, default `0.0`): Variance of Gaussian noise added to wheel commands.
+/// - `slip_fraction` (float, default `0.0`): Fraction of random wheel slip applied each tick.
+/// - `basic_sensor_variance` (float, default `0.0`): Variance of noise on fake sensor detections.
+/// - `lidar_variance` (float, default `0.0`): Variance of noise on LIDAR ranges.
+/// - `real_bot_path_length` (int, default `1000`): Maximum number of poses retained in the path.
 class nusimulator : public rclcpp::Node{
 public:
-                /// \brief Construct a nusimulator node
+  /// @brief Construct and initialise the nusimulator node.
   nusimulator();
 
 private:

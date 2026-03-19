@@ -6,6 +6,23 @@
 #include <std_srvs/srv/empty.hpp>
 #include <nuturtle_control/srv/turt_circle.hpp>
 
+/// @brief Commands a robot to drive in a circle at a configurable radius and angular velocity.
+///
+/// Publishes Twist commands on a fixed-rate timer. The robot starts stationary; motion is
+/// toggled via the `stop` service and direction is reversed via the `reverse` service.
+///
+/// @par Published Topics
+/// - `cmd_vel` (geometry_msgs/Twist): Velocity command computed from the current radius and
+///   angular velocity. Published at `frequency` Hz. Zero twist is published while stopped.
+///
+/// @par Services
+/// - `stop` (std_srvs/Empty): Toggles motion on/off. The robot starts in the stopped state.
+/// - `reverse` (std_srvs/Empty): Flips the direction of travel (clockwise ↔ counter-clockwise).
+/// - `circle` (nuturtle_control/TurtCircle): Sets the angular velocity [rad/s] and radius [m]
+///   of the circular trajectory.
+///
+/// @par Parameters
+/// - `frequency` (int, default `100`): Timer frequency [Hz] at which `cmd_vel` is published.
 class circle : public rclcpp::Node{
 public:
   circle();
