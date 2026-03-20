@@ -143,6 +143,10 @@ namespace turtlelib{
         return *this;
     }
 
+    double distance(const Point2D & a, const Point2D & b){
+        return magnitude(a - b);
+    }
+
     double angle(const Vector2D & a, const Vector2D & b){
         double dotprod = dot(a, b);
         double mags = magnitude(a) * magnitude(b);

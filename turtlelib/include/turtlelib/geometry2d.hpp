@@ -146,6 +146,12 @@ namespace turtlelib
     /// NOTE: this is not implemented in terms of += because of the different types
     Point2D operator+(const Point2D & tail, const Vector2D & disp);
 
+    /// \brief Compute the distance between two points (or the distance of a point from the origin if only one point is provided)
+    /// \param a First point
+    /// \param b Second point (defaults to the origin)
+    /// \return The distance between the two points
+    double distance(const Point2D & a, const Point2D & b = {0.0, 0.0});
+
     /// \brief output a 2 dimensional vector as [xcomponent, ycomponent]
     /// \param os - stream to output to
     /// \param v - the vector to print
