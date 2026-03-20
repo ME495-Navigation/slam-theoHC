@@ -3,11 +3,14 @@
 cmake_minimum_required(VERSION 3.22)
 project(turtlelib LANGUAGES CXX)
 
+find_package(Armadillo REQUIRED)
+
 add_library(turtlelib
   src/geometry2d.cpp
   src/se2d.cpp
   src/svg.cpp
   src/diff_drive.cpp
+  src/ekf.cpp
 )
 
 add_executable(converter src/converter.cpp)
@@ -23,6 +26,9 @@ target_include_directories(turtlelib
 
 target_compile_features(turtlelib PUBLIC cxx_std_23)
 target_compile_options(turtlelib PUBLIC -Wall -Wextra -pedantic)
+
+target_include_directories(turtlelib PUBLIC ${ARMADILLO_INCLUDE_DIRS})
+target_link_libraries(turtlelib PUBLIC ${ARMADILLO_LIBRARIES})
 
 # Install headers: results in <prefix>/include/turtlelib/...
 install(DIRECTORY include/turtlelib DESTINATION include)

@@ -1,5 +1,7 @@
-#include "nuslam/ekf.hpp"
+#include "turtlelib/ekf.hpp"
 #include "turtlelib/angle.hpp"
+
+namespace turtlelib {
 
 ExtendedKalmanFilter::ExtendedKalmanFilter(std::unique_ptr<EKFProcessModel> process_model, arma::vec state_estimate, arma::mat estimate_covariance):
     process_model(std::move(process_model)),
@@ -12,15 +14,15 @@ void ExtendedKalmanFilter::predict(const arma::vec& control_input) {
     //Predict the next state using the process model
     state_estimate = process_model->g(state_estimate, control_input);
     //Predict the next covariance using the linearized process model and the process noise covariance
-    estimate_covariance = A * estimate_covariance * A.t() + 
+    estimate_covariance = A * estimate_covariance * A.t() +
         process_model->Q(state_estimate.n_rows);
 }
 
 void ExtendedKalmanFilter::update(const arma::vec& measurement, EKFMeasurementModel& measurement_model) {
     //Compute the Kalman gain
     arma::mat H = measurement_model.H(state_estimate);
-    arma::mat K = estimate_covariance * H.t() * 
-        arma::inv(H * estimate_covariance * H.t() + 
+    arma::mat K = estimate_covariance * H.t() *
+        arma::inv(H * estimate_covariance * H.t() +
         measurement_model.R());
     //Update the state estimate using the measurement and the Kalman gain
     arma::vec innovation = measurement - measurement_model.h(state_estimate);
@@ -49,12 +51,14 @@ void DiffDriveEKF::extendStateWithObstacle(const arma::vec& new_state, const arm
 
 arma::vec DiffDriveEKF::normalizeInnovation(arma::vec innovaton) {
     //Wrap the angle in the innovation to [-pi, pi]
-    innovaton.at(1) = turtlelib::normalize_angle(innovaton.at(1));
+    innovaton.at(1) = normalize_angle(innovaton.at(1));
     return innovaton;
 }
 
 arma::vec DiffDriveEKF::normalizeState(arma::vec state){
     //Wrap the angle in the robot pose to [-pi, pi]
-    state.at(0) = turtlelib::normalize_angle(state.at(0));
+    state.at(0) = normalize_angle(state.at(0));
     return state;
 }
+
+} // namespace turtlelib

@@ -1,9 +1,11 @@
-#ifndef NUSLAM_EKF_HPP
-#define NUSLAM_EKF_HPP
+#ifndef TURTLELIB_EKF_HPP
+#define TURTLELIB_EKF_HPP
 
 #include "armadillo"
 #include <functional>
 #include <memory>
+
+namespace turtlelib {
 
 class EKFProcessModel {
     /// \brief Process model for the EKF, containing the process model, its linearization, and the process noise covariance
@@ -102,4 +104,6 @@ class DiffDriveEKF : public ExtendedKalmanFilter {
         arma::vec normalizeState(arma::vec state) override;
 };
 
-#endif // NUSLAM_EKF_HPP
+} // namespace turtlelib
+
+#endif // TURTLELIB_EKF_HPP

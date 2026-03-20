@@ -1,6 +1,6 @@
 #pragma once
 #include "rclcpp/rclcpp.hpp"
-#include "nuslam/ekf.hpp"
+#include "turtlelib/ekf.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "tf2_ros/transform_broadcaster.h"
@@ -36,7 +36,7 @@ class Slammer : public rclcpp::Node {
         Slammer();
     
     private:
-        DiffDriveEKF ekf;
+        turtlelib::DiffDriveEKF ekf;
 
         rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odomSub;
         rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr fakeInputSub;

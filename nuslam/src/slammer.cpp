@@ -1,5 +1,5 @@
 #include "nuslam/slammer.hpp"
-#include "nuslam/ekf.hpp"
+#include "turtlelib/ekf.hpp"
 #include "turtlelib/se2d.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
@@ -27,7 +27,7 @@ arma::vec sample_gaussian_noise(const arma::mat& Sigma, arma::arma_rng::seed_typ
     return L * z;
 }
 
-class DiffDriveProcessModel : public EKFProcessModel {
+class DiffDriveProcessModel : public turtlelib::EKFProcessModel {
     public:
     arma::vec g(const arma::vec& x, const arma::vec& u) override{
       arma::vec update_pred = arma::zeros(x.n_rows);
@@ -67,7 +67,7 @@ class DiffDriveProcessModel : public EKFProcessModel {
     }
 };
 
-class CylinderMeasureModel : public EKFMeasurementModel {
+class CylinderMeasureModel : public turtlelib::EKFMeasurementModel {
   public:
     int index = 0;
     arma::vec h(const arma::vec& x) override{
@@ -121,7 +121,7 @@ class CylinderMeasureModel : public EKFMeasurementModel {
 
 Slammer::Slammer() : 
 Node("nuslam"),
-ekf(DiffDriveEKF(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0}), arma::zeros(3, 3)))
+ekf(turtlelib::DiffDriveEKF(std::make_unique<DiffDriveProcessModel>(), arma::vec({0, 0, 0}), arma::zeros(3, 3)))
 {
     odomSub = this->create_subscription<nav_msgs::msg::Odometry>("odom", 10, std::bind(&Slammer::odomCallback, this, std::placeholders::_1));
     fakeInputSub = this->create_subscription<visualization_msgs::msg::MarkerArray>("fake_input", 10, std::bind(&Slammer::fakeInputCallback, this, std::placeholders::_1));
